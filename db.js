@@ -11,9 +11,7 @@ db.serialize(function () {
   db.run(
     `CREATE TABLE IF NOT EXISTS users (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "username" TEXT,
-    "password" TEXT,
-    "salt" TEXT
+    "username" TEXT
   )`
   );
 });
