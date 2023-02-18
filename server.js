@@ -4,6 +4,7 @@ const path = require("path");
 const expressSession = require("express-session");
 const passport = require("passport");
 const Auth0Strategy = require("passport-auth0");
+var cors = require("cors");
 
 require("dotenv").config();
 
@@ -67,6 +68,11 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
+app.use(
+  cors({
+    origin: [process.env.REACT_APP_URL],
+  })
+);
 app.use("/", authRouter);
 
 // These routes require the user to log in
@@ -85,6 +91,7 @@ app.get("/user", secured, (req, res, next) => {
 
 app.listen(port, () => {
   /* eslint-disable no-console */
+  console.log(`React app running on ${process.env.REACT_APP_URL}`);
   console.log(`Listening: http://localhost:${port}`);
   /* eslint-enable no-console */
 });
