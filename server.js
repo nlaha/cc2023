@@ -114,6 +114,8 @@ app.post("/api/classes/add", secured, async (req, res, next) => {
   res.status(200);
 });
 
+
+
 app.set("trust proxy", 1);
 
 app.listen(port, () => {
