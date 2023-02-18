@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../db/db.db"
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  oauth_id String @unique
+  email String  @unique
+  name  String?
+  classes Class[]
+}
+
+model Class {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name     String
+  class_number String
+  students User[]
+}

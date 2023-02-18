@@ -15,7 +15,9 @@ const port = process.env.PORT || "3000";
 
 var SQLiteStore = require("connect-sqlite3")(expressSession);
 
-var db = require("./db");
+// set up our ORM
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
 const session = {
   secret: process.env.SESSION_SECRET,
@@ -39,7 +41,7 @@ const strategy = new Auth0Strategy(
     domain: process.env.AUTH0_DOMAIN,
     clientID: process.env.AUTH0_CLIENT_ID,
     clientSecret: process.env.AUTH0_CLIENT_SECRET,
-    callbackURL: process.env.AUTH0_CALLBACK_URL,
+    callbackURL: process.env.PUBLIC_URL + process.env.AUTH0_CALLBACK_URL,
     authRequired: false,
     auth0Logout: true,
   },
@@ -60,17 +62,32 @@ passport.use(strategy);
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user, done) => {
+passport.serializeUser(async (user, done) => {
+  const lms_user = await prisma.user.create({
+    data: {
+      oauth_id: user.id,
+      email: user.emails[0].value,
+      name: user.displayName,
+    },
+  });
+  user.lms = lms_user;
   done(null, user);
 });
 
-passport.deserializeUser((user, done) => {
+passport.deserializeUser(async (user, done) => {
+  const lms_user = await prisma.user.findUnique({
+    where: {
+      oauth_id: user.id,
+    },
+  });
+  user.lms = lms_user;
+  console.log(user.lms);
   done(null, user);
 });
 
 app.use(
   cors({
-    origin: [process.env.REACT_APP_URL],
+    origin: [process.env.PUBLIC_URL],
   })
 );
 app.use("/", authRouter);
@@ -89,9 +106,11 @@ app.get("/user", secured, (req, res, next) => {
   res.json(userProfile);
 });
 
+app.set("trust proxy", 1);
+
 app.listen(port, () => {
   /* eslint-disable no-console */
-  console.log(`React app running on ${process.env.REACT_APP_URL}`);
+  console.log(`React app running on ${process.env.PUBLIC_URL}`);
   console.log(`Listening: http://localhost:${port}`);
   /* eslint-enable no-console */
 });
