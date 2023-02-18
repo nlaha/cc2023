@@ -1,0 +1,47 @@
+{
+  "name": "crimson-lms-server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Back-end server for crimson lms",
+  "keywords": [
+    "auth0",
+    "express",
+    "passport"
+  ],
+  "author": {
+    "name": "Nathan Laha",
+    "email": "nlaha@nlaha.com",
+    "url": "https://nlaha.com/"
+  },
+  "homepage": "https://github.com/nlaha/cc2023",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nlaha/cc2023.git"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "connect-ensure-login": "^0.1.1",
+    "connect-sqlite3": "^0.9.13",
+    "cookie-parser": "~1.4.4",
+    "csurf": "^1.11.0",
+    "debug": "~2.6.9",
+    "dotenv": "^8.6.0",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "express-jwt": "^8.4.1",
+    "express-jwt-authz": "^2.4.1",
+    "express-session": "^1.17.2",
+    "http-errors": "~1.6.3",
+    "jwks-rsa": "^3.0.1",
+    "mkdirp": "^1.0.4",
+    "morgan": "~1.9.1",
+    "passport": "^0.6.0",
+    "passport-auth0": "^1.4.3",
+    "passport-openidconnect": "^0.1.1",
+    "pluralize": "^8.0.0",
+    "pug": "^3.0.2",
+    "sqlite3": "^5.0.2"
+  }
+}
