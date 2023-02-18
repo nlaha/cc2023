@@ -102,6 +102,18 @@ app.get("/user", secured, (req, res, next) => {
   res.json(userProfile);
 });
 
+app.post("/api/classes/add", secured, async (req, res, next) => {
+  const new_class = await prisma.class.upsert({
+    where:{number:req.body.number}, //finds object in database that's equal to class number already passed
+    update:{},
+    create:{
+      number:req.body.number,
+      name:req.body.name
+    }
+  });
+  res.status(200);
+});
+
 app.set("trust proxy", 1);
 
 app.listen(port, () => {

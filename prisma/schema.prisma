@@ -19,6 +19,6 @@ model Class {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   name     String
-  class_number String
+  number String
   students User[]
 }
