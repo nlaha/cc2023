@@ -62,8 +62,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.serializeUser(async (user, done) => {
-  const lms_user = await prisma.user.create({
-    data: {
+  const lms_user = await prisma.user.upsert({
+    where: { oauth_id: user.id || 0 },
+    update: {},
+    create: {
       oauth_id: user.id,
       email: user.emails[0].value,
       name: user.displayName,
