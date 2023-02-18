@@ -29,7 +29,7 @@ if (app.get("env") === "production") {
   session.cookie.secure = true;
 }
 
-app.use(express.static(path.join(__dirname, "client/dist")));
+app.use(express.static(path.join(__dirname, "client/build")));
 
 app.use(expressSession(session));
 
@@ -39,6 +39,8 @@ const strategy = new Auth0Strategy(
     clientID: process.env.AUTH0_CLIENT_ID,
     clientSecret: process.env.AUTH0_CLIENT_SECRET,
     callbackURL: process.env.AUTH0_CALLBACK_URL,
+    authRequired: false,
+    auth0Logout: true,
   },
   function (accessToken, refreshToken, extraParams, profile, done) {
     /**
