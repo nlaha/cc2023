@@ -1,6 +1,12 @@
 .env
 var
 
+db/
+db/*
+db
+db/db.db
+db/sessions.db
+
 # Node.js
 node_modules/
 npm-debug.log*

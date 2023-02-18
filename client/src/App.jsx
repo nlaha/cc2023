@@ -21,7 +21,7 @@ function App() {
 
   return (
     <div className="App">
-      Crimson LMS{" "}
+      Crimson LMS
       {user ? (
         <div>
           Welcome, {user.displayName}! <a href="/logout">Logout</a>
