@@ -20,5 +20,6 @@ model Class {
   createdAt DateTime @default(now())
   name     String
   number String
+  prefix String
   students User[]
 }

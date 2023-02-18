@@ -108,7 +108,8 @@ app.post("/api/classes/add", secured, async (req, res, next) => {
     update:{},
     create:{
       number:req.body.number,
-      name:req.body.name
+      name:req.body.name,
+      prefix:req.body.prefix,
     }
   });
   res.status(200);
