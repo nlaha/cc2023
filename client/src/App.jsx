@@ -1,102 +1,68 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect, createContext } from "react";
 import {
-  AppShell,
-  Navbar,
-  Header,
-  Footer,
-  Aside,
-  Text,
-  MediaQuery,
-  Burger,
+  MantineProvider,
+  ColorSchemeProvider,
   useMantineTheme,
 } from "@mantine/core";
+import { SpotlightProvider } from "@mantine/spotlight";
+import { ModalsProvider } from "@mantine/modals";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useColorScheme } from "@mantine/hooks";
+
+import Home from "./Home";
+import Grades from "./Grades";
+import Classes from "./Classes";
+import CLMSAppShell from "./CLMSAppShell";
+
+import { useSelector, useDispatch } from "react-redux";
+import { fetchUser } from "./features/user/userSlice";
 
 function App() {
-  const [user, setUser] = useState(null);
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
+  // hook will return either 'dark' or 'light' on client
+  // and always 'light' during ssr as window.matchMedia is not available
+  const preferredColorScheme = "dark";
+  const [colorScheme, setColorScheme] = useState(preferredColorScheme);
+  const toggleColorScheme = (value) =>
+    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+
+  const dispatch = useDispatch();
+  const userStatus = useSelector((state) => state.user.status);
 
   useEffect(() => {
-    getUser();
-  }, []);
-
-  const getUser = () => {
-    axios
-      .get(process.env.REACT_APP_API_URL + "/user")
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+    console.log(userStatus);
+    if (userStatus === "idle") {
+      dispatch(fetchUser());
+    }
+  }, [userStatus, dispatch]);
 
   return (
-    <div className="App">
-      <AppShell
-        styles={{
-          main: {
-            background:
-              theme.colorScheme === "dark"
-                ? theme.colors.dark[8]
-                : theme.colors.gray[0],
-          },
-        }}
-        navbarOffsetBreakpoint="sm"
-        asideOffsetBreakpoint="sm"
-        navbar={
-          <Navbar
-            p="md"
-            hiddenBreakpoint="sm"
-            hidden={!opened}
-            width={{ sm: 200, lg: 300 }}
-          >
-            <Text>Application navbar</Text>
-          </Navbar>
-        }
-        aside={
-          <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-            <Aside p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 300 }}>
-              <Text>Application sidebar</Text>
-            </Aside>
-          </MediaQuery>
-        }
-        footer={
-          <Footer height={60} p="md">
-            Application footer
-          </Footer>
-        }
-        header={
-          <Header height={{ base: 50, md: 70 }} p="md">
-            <div
-              style={{ display: "flex", alignItems: "center", height: "100%" }}
-            >
-              <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-                <Burger
-                  opened={opened}
-                  onClick={() => setOpened((o) => !o)}
-                  size="sm"
-                  color={theme.colors.gray[6]}
-                  mr="xl"
-                />
-              </MediaQuery>
-              <Text>Application header</Text>
-              Crimson LMS
-              {user ? (
-                <div>
-                  Welcome, {user.displayName}! <a href="/logout">Logout</a>
-                </div>
-              ) : (
-                <a href="/login">Login</a>
-              )}
-            </div>
-          </Header>
-        }
+    <ColorSchemeProvider
+      colorScheme={colorScheme}
+      toggleColorScheme={toggleColorScheme}
+    >
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+        theme={{ colorScheme }}
       >
-        <Text>Resize app to see responsive navbar in action</Text>
-      </AppShell>
-    </div>
+        <ModalsProvider>
+          <BrowserRouter>
+            <CLMSAppShell
+              toggleColorScheme={toggleColorScheme}
+              colorScheme={colorScheme}
+            >
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/classes" element={<Classes />} />
+                <Route path="/grades" element={<Grades />} />
+              </Routes>
+            </CLMSAppShell>
+          </BrowserRouter>
+        </ModalsProvider>
+      </MantineProvider>
+    </ColorSchemeProvider>
   );
 }
 

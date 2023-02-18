@@ -4,7 +4,6 @@ const path = require("path");
 const expressSession = require("express-session");
 const passport = require("passport");
 const Auth0Strategy = require("passport-auth0");
-var cors = require("cors");
 
 require("dotenv").config();
 
@@ -85,11 +84,6 @@ passport.deserializeUser(async (user, done) => {
   done(null, user);
 });
 
-app.use(
-  cors({
-    origin: [process.env.PUBLIC_URL],
-  })
-);
 app.use("/", authRouter);
 
 // These routes require the user to log in
