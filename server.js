@@ -123,16 +123,20 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
-// If either of the end points between lines 128 - 135 do not work, just comment all of it out 
+// If either of the end points between lines 128 - 135 do not work, just comment all of it out
 // Updates an Assignment's Description| I don't know if this works to be entirely honest
-app.post("/api/assignment/change_Description",school_admin_only,async (req, res) => {
+app.post(
+  "/api/assignment/change_Description",
+  school_admin_only,
+  async (req, res) => {
     //console.log(req.bod);
     console.log(req.bod);
     const new_description = await prisma.assignment.update({
-      where: {id: req.body.id},
-      update: {description: req.body.description}
+      where: { id: req.body.id },
+      update: { description: req.body.description },
     });
-  });
+  }
+);
 
 app.post("/api/classes/is_instructor", secured, async (req, res, next) => {
   var enrolling_user = await prisma.user.findFirst({
@@ -253,6 +257,25 @@ app.post("/api/classes/enroll", async (req, res) => {
   }
 });
 
+app.post("/api/classes/is_instructor", secured, async (req, res, next) => {
+  var enrolling_user = await prisma.user.findFirst({
+    where: { oauth_id: req.user.id },
+  });
+  const classes = await prisma.usersInClasses.count({
+    where: {
+      userId: enrolling_user.id,
+      classId: Number(req.body.id),
+      isInstructor: true,
+    },
+  });
+
+  if (classes > 0) {
+    res.json({ is_instructor: true });
+  } else {
+    res.json({ is_instructor: false });
+  }
+});
+
 // drops a user from a course
 app.post("/api/classes/drop", async (req, res) => {
   // get user
@@ -319,15 +342,14 @@ app.post("/api/classes/search", async (req, res) => {
   });
 });
 
-// currently doesn't check for duplicates - I'll fix later 
-app.post("/api/assignments/add", async(req, res) => {
-
+// currently doesn't check for duplicates - I'll fix later
+app.post("/api/assignments/add", async (req, res) => {
   const getCourse = await prisma.class.findFirst({
     where: {
       AND: [
-        {name: {contains: req.body.course_name} },
-        {number: {contains: req.body.course_number} }
-      ]
+        { name: { contains: req.body.course_name } },
+        { number: { contains: req.body.course_number } },
+      ],
     },
   });
   if (getCourse == undefined) {
@@ -342,18 +364,16 @@ app.post("/api/assignments/add", async(req, res) => {
         create: {
           class: {
             connect: {
-              id: getCourse.id
+              id: getCourse.id,
             },
           },
         },
       },
     },
   });
-  
+
   res.json(createAssignment);
-
-})
-
+});
 
 // gets a users grade for a given assignment
 app.post("/api/grades/get_assignment_grade", async (req, res) => {
