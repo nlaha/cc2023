@@ -19,7 +19,7 @@
     "url": "https://github.com/nlaha/cc2023.git"
   },
   "scripts": {
-    "start": "prisma migrate deploy && node server.js"
+    "start": "npx prisma db push && node server.js"
   },
   "dependencies": {
     "@prisma/client": "^4.10.1",
