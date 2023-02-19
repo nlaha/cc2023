@@ -108,12 +108,12 @@ const school_admin_only = (req, res, next) => {
   req.session.returnTo = req.originalUrl;
   res.redirect("/login");
 };
-
+//Get user
 app.get("/user", secured, (req, res, next) => {
   const { _raw, _json, ...userProfile } = req.user;
   res.json(userProfile);
 });
-
+//Post/Add Assignment
 app.post("/api/assignment/add", secured, async (req, res, next) => {
   const new_assignment = await prisma.assignment.upsert({
     update: {},
@@ -124,12 +124,12 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
-
+//Get all classes
 app.get("/api/classes/getall", secured, async (req, res, next) => {
   const classes = await prisma.class.findMany();
   res.json(classes);
 });
-
+//Get a signular class
 app.get("/api/classes/get", secured, async (req, res, next) => {
   const classes = await prisma.class.findMany({
     where: {
@@ -138,7 +138,7 @@ app.get("/api/classes/get", secured, async (req, res, next) => {
   });
   res.json(classes);
 });
-
+//Post/Add a class
 app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
   console.log(req.body);
   const new_class = await prisma.class.upsert({
