@@ -107,12 +107,12 @@ const school_admin_only = (req, res, next) => {
   req.session.returnTo = req.originalUrl;
   res.redirect("/login");
 };
-// Get user
+//Get user
 app.get("/user", secured, (req, res, next) => {
   const { _raw, _json, ...userProfile } = req.user;
   res.json(userProfile);
 });
-// Post/Add Assignment
+//Post/Add Assignment
 app.post("/api/assignment/add", secured, async (req, res, next) => {
   const new_assignment = await prisma.assignment.upsert({
     update: {},
@@ -127,29 +127,21 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
 // Updates an Assignment's Description| I don't know if this works to be entirely honest
 app.post("/api/assignment/change_Description"),school_admin_only,async (req, res) => {
     //console.log(req.bod);
+//Updates an Assignment's Description | I don't know if this works to be entirely honest
+app.post("/api/assignment/change"),
+  school_admin_only,
+  async (req, res) => {
+    console.log(req.bod);
     const new_description = await prisma.assignment.update({
-      where: {id: Number(req.body.id)},
-      data: {description: req.assignment.description},
+      update: {
+        name: req.body.name,
+        description: req.body.description,
+        pointsWorth: req.body.pointsWorth,
+      },
     });
   };
-// Updates an Assignment's Name| I don't know if this works to be entirely honest
-app.post("/api/assignment/change_Name"),school_admin_only,async (req, res) => {
-  //console.log(req.bod);
-  const new_name = await prisma.assignment.update({
-    where: {id: Number(req.body.id)},
-    data: {name: req.assignment.name},
-  });
-};
-// Updates an Assignment's Points that it's Worth| I don't know if this works to be entirely honest
-app.post("/api/assignment/change_pointsWorth"),school_admin_only,async (req, res) => {
-  //console.log(req.bod);
-  const new_description = await prisma.assignment.update({
-    where: {id: Number(req.body.id)},
-    data: {pointsWorth: req.assignment.pointsWorth},
-  });
-};
 
-// Get all classes
+//Get all classes
 app.post("/api/classes/getall", secured, async (req, res, next) => {
   const total = await prisma.class.count();
   let classes = await prisma.class.findMany({
@@ -161,7 +153,7 @@ app.post("/api/classes/getall", secured, async (req, res, next) => {
     num_pages: Math.ceil(total / (req.body.take || 10)),
   });
 });
-// Get a singular class
+//Get a signular class
 app.post("/api/classes/get", secured, async (req, res, next) => {
   const classes = await prisma.class.findUnique({
     where: {
@@ -193,7 +185,7 @@ app.post("/api/classes/students", secured, async (req, res, next) => {
   res.json(student_info);
 });
 
-// Post/Add a class
+//Post/Add a class
 app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
   console.log(req.body);
   const new_class = await prisma.class.upsert({
@@ -211,7 +203,7 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
 });
 
 // assumes user exists (this also probably doesnt work - needs to be tested)
-app.post("/api/classes/enroll", secured, async (req, res) => {
+app.post("/api/classes/enroll", async (req, res) => {
   var enrolling_user = await prisma.user.findFirst({
     where: { oauth_id: req.user.id },
   });
@@ -240,16 +232,6 @@ app.post("/api/classes/enroll", secured, async (req, res) => {
       },
     });
 
-    // increment the number of enrolled students
-    await prisma.class.update({
-      where: { number: req.body.number },
-      data: {
-        enrolled: {
-          increment: 1,
-        },
-      },
-    });
-
     console.log("Enrolled user in class: " + req.body.number);
     return res.json(enrolled_class);
   } else {
@@ -259,7 +241,7 @@ app.post("/api/classes/enroll", secured, async (req, res) => {
 });
 
 // drops a user from a course
-app.post("/api/classes/drop", secured, async (req, res) => {
+app.post("/api/classes/drop", async (req, res) => {
   // get user
   const user = await prisma.user.findUnique({
     where: { oauth_id: req.user.id },
@@ -274,22 +256,12 @@ app.post("/api/classes/drop", secured, async (req, res) => {
     },
   });
 
-  // decrement the number of enrolled students
-  await prisma.class.update({
-    where: { id: req.body.id },
-    data: {
-      enrolled: {
-        decrement: 1,
-      },
-    },
-  });
-
   console.log("Dropped user from class: " + req.body.id);
   return res.status(200);
 });
 
 // gets the classes a user is enrolled in
-app.get("/api/enrolled_classes", secured, async (req, res) => {
+app.get("/api/enrolled_classes", async (req, res) => {
   const user_classes = await prisma.class.findMany({
     where: {
       students: {
@@ -305,7 +277,7 @@ app.get("/api/enrolled_classes", secured, async (req, res) => {
 });
 
 // get classes w/ regex and search class number
-app.post("/api/classes/search", secured, async (req, res) => {
+app.post("/api/classes/search", async (req, res) => {
   const query = {
     name: { contains: query_string },
     NOT: {
@@ -334,14 +306,56 @@ app.post("/api/classes/search", secured, async (req, res) => {
   });
 });
 
-// gets a users grade for a given course
-app.post("/api/grades/get_course_grade", secured, async (req, res) => {
-  throw new Error("Not Implemented");
-});
+// currently doesn't check for duplicates - I'll fix later 
+app.post("/api/assignments/add", async(req, res) => {
 
-// gets all assignments for a certain class - potentially filtered by user too
-app.post("/api/assignments", secured, async (req, res) => {
-  throw new Error("Not Implemented");
+  const getCourse = await prisma.class.findFirst({
+    where: {
+      AND: [
+        {name: {contains: req.body.course_name} },
+        {number: {contains: req.body.course_number} }
+      ]
+    },
+  });
+
+  const createAssignment = await prisma.assignment.create({
+    name: req.body.name,
+    description: req.body.description,
+    pointsWorth: req.body.points_worth,
+    classId: getCourse.id
+  });
+  
+  res.json(createAssignment);
+
+})
+
+
+// gets a users grade for a given assignment
+app.post("/api/grades/get_assignment_grade", async (req, res) => {
+  throw new Error("Not Implemented"); // can't implement this until assignments can be added
+  /*
+  var assignment_description = req.body.description || "";
+  var assignment_name = req.body.name || "";
+  var user = req.user.id;
+  // lots of improvements to be made here
+  const associated_assignment = await prisma.assignment.findFirst({
+    where: {
+      name: { contains: assignment_name},
+      OR: {
+        assignment_description: {contains: assignment_description}
+      }
+    },
+  });
+  console.log("Found Assignment: " + associated_assignment.id);
+  
+  const associated_user = await prisma.user.findFirst({
+    where: {
+      oauth_id: user
+    }
+  });
+  console.log("Found a User with id " + associated_user.id)
+  res.json(associated_assignment);
+  */
 });
 
 app.set("trust proxy", 1);
