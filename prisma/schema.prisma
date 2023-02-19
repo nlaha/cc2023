@@ -31,7 +31,6 @@ model Class {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   name     String
-  prefix String
   number String @unique
   enrolled Int
   capacity Int
