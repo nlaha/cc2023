@@ -156,23 +156,23 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
 });
 
 // assumes user exists (this also probably doesnt work - needs to be tested)
-app.post("/api/classes/enroll", async(req, res) => {
-  var enrolling_user = await prisma.class.findFirst({
-    where: {name: req.user}
+app.post("/api/classes/enroll", async (req, res) => {
+  var enrolling_user = await prisma.user.findFirst({
+    where: { oauth_id: req.user.id },
   });
   var enrolled_class = prisma.class.update({
-    where: { name: req.body.class_number },
+    where: { number: req.body.class_number },
     data: {
       students: {
-        connect: {id: enrolling_user.id}
-      }
-    }
+        connect: { id: enrolling_user.id },
+      },
+    },
   });
   return res.json(enrolled_class);
 });
 
 // drops a user from a course
-app.delete("/api/classes/drop", async(req, res) => {
+app.delete("/api/classes/drop", async (req, res) => {
   throw new Error("Not Implemented");
 });
 
@@ -186,25 +186,23 @@ app.post("/api/enrolled_classes", async (req, res) => {
 });
 
 // get classes w/ regex and search class number
-app.post("/api/classes/search", async(req, res) => {
+app.post("/api/classes/search", async (req, res) => {
   var query_string = req.body.query_string;
   const matching_classes = await prisma.class.findMany({
-    where: {name: {contains: query_string}}
+    where: { name: { contains: query_string } },
   });
   res.json(matching_classes);
-})
+});
 
 // gets a users grade for a given course
-app.post("/api/grades/get_course_grade", async(req, res) => {
+app.post("/api/grades/get_course_grade", async (req, res) => {
   throw new Error("Not Implemented");
 });
 
 // gets all assignments for a certain class - potentially filtered by user too
-app.post("/api/assignments", async(req, res) => {
+app.post("/api/assignments", async (req, res) => {
   throw new Error("Not Implemented");
 });
-
-
 
 app.set("trust proxy", 1);
 
