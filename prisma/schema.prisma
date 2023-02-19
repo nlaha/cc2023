@@ -16,12 +16,25 @@ model User {
   classes Class[]
 }
 
+model Assignment{
+  id      Int   @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name  String
+  description String
+  pointsWorth Int
+  classId Int
+  class Class @relation(fields: [classId], references: [id])
+}
+
+
 model Class {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   name     String
+  prefix String
   number String @unique
   enrolled Int
   capacity Int
   students User[]
+  assignment Assignment[]
 }

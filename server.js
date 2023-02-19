@@ -114,6 +114,17 @@ app.get("/user", secured, (req, res, next) => {
   res.json(userProfile);
 });
 
+app.post("/api/assignment/add", secured, async (req, res, next) => {
+  const new_assignment = await prisma.assignment.upsert({
+    update: {},
+    create: {
+      name: req.body.name,
+      pointsWorth: req.body.pointsWorth,
+      description: req.body.description,
+    },
+  });
+});
+
 app.get("/api/classes/getall", secured, async (req, res, next) => {
   const classes = await prisma.class.findMany();
   res.json(classes);
