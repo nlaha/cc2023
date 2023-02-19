@@ -140,17 +140,17 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
       capacity: Number(req.body.capacity),
     },
   });
-  res.status(200);
+
+  res.json(new_class);
 });
 
 // gets the classes a user is enrolled in
 app.get("/api/enrolled_classes", async (req, res) => {
   var user_id = parseInt(req.query.id);
   const user_classes = await prisma.class.findMany({
-    where: { students: { some: {id : user_id}}}
+    where: { students: { some: { id: user_id } } },
   });
   res.json(user_classes);
-
 });
 
 app.set("trust proxy", 1);
