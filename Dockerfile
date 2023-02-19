@@ -11,6 +11,7 @@ RUN npm install --production --silent && mv node_modules ../
 RUN npx prisma generate
 RUN chown -R node /usr/src/node_modules/.prisma
 WORKDIR /usr/src/app/client
+ENV REACT_APP_API_URL=https://crimsonlms.nlaha.com
 RUN npm install --production --silent && npm run build
 WORKDIR /usr/src/app
 EXPOSE 3000
