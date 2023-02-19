@@ -30,5 +30,5 @@ model Class {
   number String
   prefix String
   students User[]
-  assignemnt Assignment[]
+  assignment Assignment[]
 }
