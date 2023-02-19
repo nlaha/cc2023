@@ -115,7 +115,16 @@ app.post("/api/classes/add", secured, async (req, res, next) => {
   res.status(200);
 });
 
-
+app.post("/api/assignment/add", secured, async (req, res, next) => {
+  const new_assignment = await prisma.assignment.upsert({
+    update:{},
+    create:{
+      name:req.body.name,
+      pointsWorth:req.body.pointsWorth,
+    }
+  });
+  res.status(200);
+});
 
 app.set("trust proxy", 1);
 

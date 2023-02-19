@@ -15,6 +15,13 @@ model User {
   classes Class[]
 }
 
+model Assignment{
+  id      Int   @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name  String
+  pointsWorth Int
+}
+
 model Class {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
