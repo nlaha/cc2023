@@ -107,12 +107,12 @@ const school_admin_only = (req, res, next) => {
   req.session.returnTo = req.originalUrl;
   res.redirect("/login");
 };
-//Get user
+// Get user
 app.get("/user", secured, (req, res, next) => {
   const { _raw, _json, ...userProfile } = req.user;
   res.json(userProfile);
 });
-//Post/Add Assignment
+// Post/Add Assignment
 app.post("/api/assignment/add", secured, async (req, res, next) => {
   const new_assignment = await prisma.assignment.upsert({
     update: {},
@@ -123,7 +123,7 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
-//Updates an Assignment's Description| I don't know if this works to be entirely honest
+// Updates an Assignment's Description| I don't know if this works to be entirely honest
 app.post("/api/assignment/change_Description"),school_admin_only,async (req, res) => {
     //console.log(req.bod);
     const new_description = await prisma.assignment.update({
@@ -132,7 +132,7 @@ app.post("/api/assignment/change_Description"),school_admin_only,async (req, res
     });
   };
 
-//Get all classes
+// Get all classes
 app.post("/api/classes/getall", secured, async (req, res, next) => {
   const total = await prisma.class.count();
   let classes = await prisma.class.findMany({
@@ -144,7 +144,7 @@ app.post("/api/classes/getall", secured, async (req, res, next) => {
     num_pages: Math.ceil(total / (req.body.take || 10)),
   });
 });
-//Get a signular class
+// Get a singular class
 app.post("/api/classes/get", secured, async (req, res, next) => {
   const classes = await prisma.class.findUnique({
     where: {
@@ -176,7 +176,7 @@ app.post("/api/classes/students", secured, async (req, res, next) => {
   res.json(student_info);
 });
 
-//Post/Add a class
+// Post/Add a class
 app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
   console.log(req.body);
   const new_class = await prisma.class.upsert({
