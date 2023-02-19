@@ -54,6 +54,8 @@ model Class {
   students UsersInClasses[]
   assignment Assignment[]
 
+  @@fulltext([number])
+  @@fulltext([name])
   @@fulltext([name, number])
 }
 
