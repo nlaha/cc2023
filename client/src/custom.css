@@ -16,6 +16,18 @@
 .admin-button {
 }
 
+.full-width {
+  width: 100%;
+}
+
+.grow {
+  flex-grow: 1 !important;
+}
+
+.full-width button {
+  width: 100%;
+}
+
 .admin-btn-container {
   position: absolute;
   bottom: 1rem;

@@ -12,7 +12,11 @@ export const userSlice = createSlice({
     user: null,
     status: "idle",
   },
-  reducers: {},
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(fetchUser.pending, (state, action) => {
@@ -34,6 +38,6 @@ export const userSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-//export const {  } = userSlice.actions;
+export const { logout } = userSlice.actions;
 
 export default userSlice.reducer;

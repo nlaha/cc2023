@@ -8,6 +8,7 @@ import {
   Button,
   Text,
   MediaQuery,
+  Group,
   ScrollArea,
   Burger,
   Title,
@@ -15,11 +16,16 @@ import {
   Stack,
   NavLink,
   Divider,
+  ActionIcon,
+  Anchor,
 } from "@mantine/core";
 
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { IconLogin, IconLogout } from "@tabler/icons";
+
+import { logout } from "./features/user/userSlice";
 
 export default function CLMSAppShell(props) {
   const theme = useMantineTheme();
@@ -34,13 +40,13 @@ export default function CLMSAppShell(props) {
         setClasses(
           res.data.map((c) => (
             <Link
+              className="link full-width"
               key={c.id}
               component={Link}
               to={`/class?id=${c.id}`}
-              className="link"
             >
               <Button color="pink" variant="light">
-                {c.name} | {c.number}
+                {c.name}
               </Button>
             </Link>
           ))
@@ -66,16 +72,16 @@ export default function CLMSAppShell(props) {
           p="md"
           hiddenBreakpoint="sm"
           hidden={!opened}
-          width={{ sm: 200, lg: 300 }}
+          width={{ sm: 300, lg: 300 }}
         >
           <Stack align="stretch" spacing={10}>
-            <Link to={`/enroll`} className="link">
+            <Link className="full-width link" to={`/enroll`}>
               <Button color="yellow">Search & Enroll</Button>
             </Link>
           </Stack>
           <Divider my="md" />
           {user && classes ? (
-            <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+            <Navbar.Section grow component={ScrollArea}>
               <Stack align="stretch" spacing={10}>
                 <Title order={3}>Classes</Title>
                 {classes}
@@ -86,8 +92,8 @@ export default function CLMSAppShell(props) {
           )}
 
           {user && user.lms.is_school_admin ? (
-            <Stack align="stretch" spacing={10} className="admin-btn-container">
-              <Link to={`/admin`}>
+            <Stack align="stretch" spacing={10}>
+              <Link className="full-width" to={`/admin`}>
                 <Button color="red" className="admin-button">
                   Admin
                 </Button>
@@ -113,14 +119,32 @@ export default function CLMSAppShell(props) {
                 opened={opened}
                 onClick={() => setOpened((o) => !o)}
                 size="sm"
-                color={theme.colors.gray[6]}
+                color="white"
                 mr="xl"
               />
             </MediaQuery>
 
-            <Link to="/" className="link">
-              <Title className="site-title">Crimson LMS</Title>
-            </Link>
+            <Group position="apart" className="grow">
+              <Link to="/" className="link">
+                <Title className="site-title">Crimson LMS</Title>
+              </Link>
+
+              <Group align="flex-end" grow>
+                {user ? (
+                  <Anchor href={`/logout`} onClick={logout} className="link">
+                    <ActionIcon size="lg">
+                      <IconLogout />
+                    </ActionIcon>
+                  </Anchor>
+                ) : (
+                  <Anchor href={`/login`} className="link">
+                    <ActionIcon size="lg">
+                      <IconLogin />
+                    </ActionIcon>
+                  </Anchor>
+                )}
+              </Group>
+            </Group>
           </div>
         </Header>
       }

@@ -129,14 +129,27 @@ app.get("/api/classes/getall", secured, async (req, res, next) => {
   res.json(classes);
 });
 //Get a signular class
-app.get("/api/classes/get", secured, async (req, res, next) => {
-  const classes = await prisma.class.findMany({
+app.post("/api/classes/get", secured, async (req, res, next) => {
+  const classes = await prisma.class.findUnique({
     where: {
-      number: req.query.number,
+      id: Number(req.body.id),
     },
   });
   res.json(classes);
 });
+
+// Get students in a class
+app.post("/api/classes/students", secured, async (req, res, next) => {
+  const students = await prisma.class
+    .findUnique({
+      where: {
+        id: Number(req.body.id),
+      },
+    })
+    .students();
+  res.json(students);
+});
+
 //Post/Add a class
 app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
   console.log(req.body);
