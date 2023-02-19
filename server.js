@@ -166,8 +166,8 @@ app.get("/api/enrolled_classes", async (req, res) => {
 
 // get classes w/ regex and search class number
 // NOTE: might be better to make this a POST 
-app.get("/api/classes/search", async(req, res) => {
-  var query_string = req.query.query_string;
+app.post("/api/classes/search", async(req, res) => {
+  var query_string = req.body.query_string;
   const matching_classes = await prisma.class.findMany({
     where: {name: {contains: query_string}}
   });
