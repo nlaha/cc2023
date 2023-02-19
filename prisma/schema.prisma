@@ -47,6 +47,7 @@ model Class {
   number String @unique
   enrolled Int
   capacity Int
+  description String?
   students UsersInClasses[]
   assignment Assignment[]
 }
