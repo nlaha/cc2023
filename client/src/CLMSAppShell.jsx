@@ -20,7 +20,7 @@ import {
   Anchor,
 } from "@mantine/core";
 
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { IconLogin, IconLogout } from "@tabler/icons";
@@ -32,7 +32,13 @@ export default function CLMSAppShell(props) {
   const [opened, setOpened] = useState(false);
   const user = useSelector((state) => state.user.user);
 
+  let [searchParams, setSearchParams] = useSearchParams();
   const [classes, setClasses] = useState([]);
+  const [activeClass, setActiveClass] = useState(searchParams.get("id"));
+
+  useEffect(() => {
+    setActiveClass(searchParams.get("id"));
+  }, [searchParams]);
 
   useEffect(() => {
     if (user) {
@@ -45,9 +51,12 @@ export default function CLMSAppShell(props) {
               component={Link}
               to={`/class?id=${c.id}`}
             >
-              <Button color="pink" variant="light">
-                {c.name}
-              </Button>
+              <NavLink
+                key={c.id}
+                active={c.id === activeClass}
+                label={c.name}
+                description={c.number}
+              />
             </Link>
           ))
         );
@@ -81,16 +90,21 @@ export default function CLMSAppShell(props) {
           </Stack>
           <Divider my="md" />
           {user && classes ? (
-            <Navbar.Section grow component={ScrollArea}>
-              <Stack align="stretch" spacing={10}>
-                <Title order={3}>Classes</Title>
-                {classes}
-              </Stack>
-            </Navbar.Section>
+            <>
+              <Title order={3} mb="sm">
+                Classes
+              </Title>
+
+              <Navbar.Section grow component={ScrollArea}>
+                <Stack align="stretch" spacing={10}>
+                  {classes}
+                </Stack>
+              </Navbar.Section>
+            </>
           ) : (
             <></>
           )}
-
+          <Divider my="md" />
           {user && user.lms.is_school_admin ? (
             <Stack align="stretch" spacing={10}>
               <Link className="full-width" to={`/admin`}>

@@ -123,10 +123,29 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
+//Updates an Assignment's Description | I don't know if this works to be entirely honest
+app.post("/api/assignment/change"), school_admin_only, async(req, res) => {
+  console.log(req.bod);
+  const new_description = await prisma.assignment.update({
+    update: {
+      name: req.body.name,
+      description: req.body.description,
+      pointsWorth: req.body.pointsWorth
+    }
+  })
+}
+
 //Get all classes
-app.get("/api/classes/getall", secured, async (req, res, next) => {
-  const classes = await prisma.class.findMany();
-  res.json(classes);
+app.post("/api/classes/getall", secured, async (req, res, next) => {
+  const total = await prisma.class.count();
+  let classes = await prisma.class.findMany({
+    skip: req.body.skip || 0,
+    take: req.body.take || 10,
+  });
+  res.json({
+    results: classes,
+    num_pages: Math.ceil(total / (req.body.take || 10)),
+  });
 });
 //Get a signular class
 app.post("/api/classes/get", secured, async (req, res, next) => {
@@ -175,6 +194,7 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
       capacity: Number(req.body.capacity),
     },
   });
+  
 
   res.json(new_class);
 });
@@ -255,22 +275,32 @@ app.get("/api/enrolled_classes", async (req, res) => {
 
 // get classes w/ regex and search class number
 app.post("/api/classes/search", async (req, res) => {
-  var query_string = req.body.query_string;
-  const matching_classes = await prisma.class.findMany({
-    where: {
-      name: { contains: query_string },
-      NOT: {
-        students: {
-          some: {
-            user: {
-              oauth_id: req.user.id,
-            },
+  const query = {
+    name: { contains: query_string },
+    NOT: {
+      students: {
+        some: {
+          user: {
+            oauth_id: req.user.id,
           },
         },
       },
     },
+  };
+
+  var query_string = req.body.query_string;
+  const total_matching_classes = await prisma.class.count({
+    where: query,
   });
-  res.json(matching_classes);
+  let matching_classes = await prisma.class.findMany({
+    skip: req.body.skip || 0,
+    take: req.body.take || 10,
+    where: query,
+  });
+  res.json({
+    results: matching_classes,
+    num_pages: Math.ceil(total_matching_classes / (req.body.take || 10)),
+  });
 });
 
 // currently doesn't check for duplicates - I'll fix later 

@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Table, Stack, Title, Group, Input, Button } from "@mantine/core";
+import {
+  Table,
+  Stack,
+  Title,
+  Group,
+  Input,
+  Button,
+  Pagination,
+} from "@mantine/core";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "@mantine/form";
 import axios from "axios";
@@ -8,26 +16,36 @@ export default function Admin() {
   const user = useSelector((state) => state.user.user);
   const userStatus = useSelector((state) => state.user.status);
 
+  const [activePage, setPage] = useState(1);
+  const [numPages, setNumPages] = useState(0);
   const [classes, setClasses] = useState([]);
 
-  const updateClasses = (new_class) => {
+  useEffect(() => {
+    if (user) {
+      updateClasses();
+    }
+  }, [userStatus, user, activePage]);
+
+  const updateClasses = async (new_class) => {
     if (!new_class) {
-      axios.get("/api/classes/getall").then((res) => {
-        setClasses(
-          res.data.map((c) => (
-            <tr key={c.id}>
-              <td>{c.name}</td>
-              <td>{c.number}</td>
-              <td>
-                {c.enrolled}/{c.capacity}
-              </td>
-            </tr>
-          ))
-        );
+      let res = await axios.post("/api/classes/getall", {
+        skip: activePage * 10,
       });
+      await setNumPages(res.data.num_pages);
+      await setClasses(
+        res.data.results.map((c) => (
+          <tr key={c.id}>
+            <td>{c.name}</td>
+            <td>{c.number}</td>
+            <td>
+              {c.enrolled}/{c.capacity}
+            </td>
+          </tr>
+        ))
+      );
     } else {
       // append new class to classes
-      setClasses([
+      await setClasses([
         ...classes,
         <tr key={new_class.id}>
           <td>{new_class.name}</td>
@@ -39,12 +57,6 @@ export default function Admin() {
       ]);
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      updateClasses();
-    }
-  }, [userStatus, user]);
 
   const form = useForm({
     initialValues: {
@@ -73,6 +85,11 @@ export default function Admin() {
           </thead>
           <tbody>{classes ? classes : <> </>}</tbody>
         </Table>
+        <Pagination
+          page={activePage}
+          onChange={setPage}
+          total={numPages || 1}
+        />
         <form
           onSubmit={form.onSubmit((values) => {
             axios.post("/api/classes/add", values).then((res) => {
