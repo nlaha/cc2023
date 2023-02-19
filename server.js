@@ -123,6 +123,18 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
+//Updates an Assignment's Description | I don't know if this works to be entirely honest
+app.post("/api/assignment/change"), school_admin_only, async(req, res) => {
+  console.log(req.bod);
+  const new_description = await prisma.assignment.update({
+    update: {
+      name: req.body.name,
+      description: req.body.description,
+      pointsWorth: req.body.pointsWorth
+    }
+  })
+}
+
 //Get all classes
 app.get("/api/classes/getall", secured, async (req, res, next) => {
   const classes = await prisma.class.findMany();
@@ -175,6 +187,7 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
       capacity: Number(req.body.capacity),
     },
   });
+  
 
   res.json(new_class);
 });
