@@ -273,14 +273,56 @@ app.post("/api/classes/search", async (req, res) => {
   res.json(matching_classes);
 });
 
-// gets a users grade for a given course
-app.post("/api/grades/get_course_grade", async (req, res) => {
-  throw new Error("Not Implemented");
-});
+// currently doesn't check for duplicates - I'll fix later 
+app.post("/api/assignments/add", async(req, res) => {
 
-// gets all assignments for a certain class - potentially filtered by user too
-app.post("/api/assignments", async (req, res) => {
-  throw new Error("Not Implemented");
+  const getCourse = await prisma.class.findFirst({
+    where: {
+      AND: [
+        {name: {contains: req.body.course_name} },
+        {number: {contains: req.body.course_number} }
+      ]
+    },
+  });
+
+  const createAssignment = await prisma.assignment.create({
+    name: req.body.name,
+    description: req.body.description,
+    pointsWorth: req.body.points_worth,
+    classId: getCourse.id
+  });
+  
+  res.json(createAssignment);
+
+})
+
+
+// gets a users grade for a given assignment
+app.post("/api/grades/get_assignment_grade", async (req, res) => {
+  throw new Error("Not Implemented"); // can't implement this until assignments can be added
+  /*
+  var assignment_description = req.body.description || "";
+  var assignment_name = req.body.name || "";
+  var user = req.user.id;
+  // lots of improvements to be made here
+  const associated_assignment = await prisma.assignment.findFirst({
+    where: {
+      name: { contains: assignment_name},
+      OR: {
+        assignment_description: {contains: assignment_description}
+      }
+    },
+  });
+  console.log("Found Assignment: " + associated_assignment.id);
+  
+  const associated_user = await prisma.user.findFirst({
+    where: {
+      oauth_id: user
+    }
+  });
+  console.log("Found a User with id " + associated_user.id)
+  res.json(associated_assignment);
+  */
 });
 
 app.set("trust proxy", 1);
