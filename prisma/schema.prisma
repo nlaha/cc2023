@@ -20,6 +20,7 @@ model Assignment{
   createdAt DateTime @default(now())
   name  String
   pointsWorth Int
+  clsses Class[]
 }
 
 model Class {
@@ -29,4 +30,5 @@ model Class {
   number String
   prefix String
   students User[]
+  assignemt Assignment[]
 }
