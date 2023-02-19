@@ -23,7 +23,7 @@ const session = {
   cookie: {},
   resave: false,
   saveUninitialized: false,
-  store: new SQLiteStore(),
+  store: new SQLiteStore({ db: "sessions.db", dir: "./db" }),
 };
 
 if (app.get("env") === "production") {
@@ -290,6 +290,16 @@ app.post("/api/classes/enroll", async (req, res) => {
       },
     });
 
+    // increment the number of enrolled students
+    enrolled_class = await prisma.class.update({
+      where: { number: req.body.number },
+      data: {
+        enrolled: {
+          increment: 1,
+        },
+      },
+    });
+
     console.log("Enrolled user in class: " + req.body.number);
     return res.json(enrolled_class);
   } else {
@@ -352,6 +362,16 @@ app.post("/api/classes/drop", async (req, res) => {
       userId_classId: {
         userId: user.id,
         classId: req.body.id,
+      },
+    },
+  });
+
+  // decrement the number of enrolled students
+  await prisma.class.update({
+    where: { id: req.body.id },
+    data: {
+      enrolled: {
+        decrement: 1,
       },
     },
   });

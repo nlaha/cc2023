@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Button, Title, MantineProvider, Stack, Image } from "@mantine/core";
+import {
+  Button,
+  Title,
+  MantineProvider,
+  Stack,
+  Image,
+  Anchor,
+} from "@mantine/core";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 
@@ -33,7 +40,7 @@ export default function Home() {
         </Stack>
       ) : (
         <Title order={3}>
-          Welcome, please <a href="/login">log in</a>
+          Welcome, please <Anchor href="/login">log in</Anchor>
         </Title>
       )}
     </>
