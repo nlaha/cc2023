@@ -108,10 +108,23 @@ const school_admin_only = (req, res, next) => {
   res.redirect("/login");
 };
 //Get user
-app.get("/user", secured, (req, res, next) => {
+app.get("/user", secured, async (req, res, next) => {
   const { _raw, _json, ...userProfile } = req.user;
+
   res.json(userProfile);
 });
+
+app.get("/api/stats", secured, async (req, res, next) => {
+  // get total enrolled classes
+  const enrolledClasses = await prisma.usersInClasses.count({
+    where: { userId: userProfile.lms.id },
+  });
+
+  res.json({
+    enrolledClasses: enrolledClasses,
+  });
+});
+
 //Post/Add Assignment
 app.post("/api/assignment/add", secured, async (req, res, next) => {
   const new_assignment = await prisma.assignment.upsert({
