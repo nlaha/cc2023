@@ -131,6 +131,22 @@ app.post("/api/assignment/change_Description"),school_admin_only,async (req, res
       data: {description: req.assignment.description},
     });
   };
+// Updates an Assignment's Name| I don't know if this works to be entirely honest
+app.post("/api/assignment/change_Name"),school_admin_only,async (req, res) => {
+  //console.log(req.bod);
+  const new_name = await prisma.assignment.update({
+    where: {id: Number(req.body.id)},
+    data: {name: req.assignment.name},
+  });
+};
+// Updates an Assignment's Points that it's Worth| I don't know if this works to be entirely honest
+app.post("/api/assignment/change_pointsWorth"),school_admin_only,async (req, res) => {
+  //console.log(req.bod);
+  const new_description = await prisma.assignment.update({
+    where: {id: Number(req.body.id)},
+    data: {pointsWorth: req.assignment.pointsWorth},
+  });
+};
 
 // Get all classes
 app.post("/api/classes/getall", secured, async (req, res, next) => {
