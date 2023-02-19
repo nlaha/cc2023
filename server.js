@@ -23,7 +23,7 @@ const session = {
   cookie: {},
   resave: false,
   saveUninitialized: false,
-  store: new SQLiteStore({ db: "sessions.db", dir: "./db" }),
+  store: new SQLiteStore(),
 };
 
 if (app.get("env") === "production") {
