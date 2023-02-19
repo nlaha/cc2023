@@ -10,20 +10,34 @@ export default function Admin() {
 
   const [classes, setClasses] = useState([]);
 
-  const updateClasses = () => {
-    axios.get("/api/classes/getall").then((res) => {
-      setClasses(
-        res.data.map((c) => (
-          <tr key={c.id}>
-            <td>{c.name}</td>
-            <td>{c.number}</td>
-            <td>
-              {c.enrolled}/{c.capacity}
-            </td>
-          </tr>
-        ))
-      );
-    });
+  const updateClasses = (new_class) => {
+    if (!new_class) {
+      axios.get("/api/classes/getall").then((res) => {
+        setClasses(
+          res.data.map((c) => (
+            <tr key={c.id}>
+              <td>{c.name}</td>
+              <td>{c.number}</td>
+              <td>
+                {c.enrolled}/{c.capacity}
+              </td>
+            </tr>
+          ))
+        );
+      });
+    } else {
+      // append new class to classes
+      setClasses([
+        ...classes,
+        <tr key={new_class.id}>
+          <td>{new_class.name}</td>
+          <td>{new_class.number}</td>
+          <td>
+            {new_class.enrolled}/{new_class.capacity}
+          </td>
+        </tr>,
+      ]);
+    }
   };
 
   useEffect(() => {
@@ -60,13 +74,14 @@ export default function Admin() {
           <tbody>{classes ? classes : <> </>}</tbody>
         </Table>
         <form
-          onSubmit={form.onSubmit(async (values) => {
-            await axios.post("/api/classes/add", values);
-            updateClasses();
+          onSubmit={form.onSubmit((values) => {
+            axios.post("/api/classes/add", values).then((res) => {
+              updateClasses(res.data);
+            });
           })}
         >
+          <Title order={3}>Add Class</Title>
           <Group>
-            <Title order={3}>Add Class</Title>
             <Input placeholder="Name" {...form.getInputProps("name")} />
             <Input placeholder="Number" {...form.getInputProps("number")} />
             <Input placeholder="Capacity" {...form.getInputProps("capacity")} />

@@ -114,6 +114,17 @@ app.get("/user", secured, (req, res, next) => {
   res.json(userProfile);
 });
 
+app.post("/api/assignment/add", secured, async (req, res, next) => {
+  const new_assignment = await prisma.assignment.upsert({
+    update: {},
+    create: {
+      name: req.body.name,
+      pointsWorth: req.body.pointsWorth,
+      description: req.body.description,
+    },
+  });
+});
+
 app.get("/api/classes/getall", secured, async (req, res, next) => {
   const classes = await prisma.class.findMany();
   res.json(classes);
@@ -140,17 +151,17 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
       capacity: Number(req.body.capacity),
     },
   });
-  res.status(200);
+
+  res.json(new_class);
 });
 
 // gets the classes a user is enrolled in
 app.get("/api/enrolled_classes", async (req, res) => {
   var user_id = parseInt(req.query.id);
   const user_classes = await prisma.class.findMany({
-    where: { students: { some: {id : user_id}}}
+    where: { students: { some: { id: user_id } } },
   });
   res.json(user_classes);
-
 });
 
 // get classes w/ regex and search class number
@@ -169,6 +180,11 @@ app.get("/api/classes/search", async(req, res) => {
 
 
 app.set("trust proxy", 1);
+
+// handles react routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/client/build/index.html"));
+});
 
 app.listen(port, () => {
   /* eslint-disable no-console */
