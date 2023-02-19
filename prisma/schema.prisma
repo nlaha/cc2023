@@ -21,6 +21,7 @@ model Assignment{
   name  String
   description String
   pointsWorth Int
+  classes Class[]
 }
 
 model Class {
