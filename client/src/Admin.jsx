@@ -8,6 +8,30 @@ export default function Admin() {
   const user = useSelector((state) => state.user.user);
   const userStatus = useSelector((state) => state.user.status);
 
+  const [classes, setClasses] = useState([]);
+
+  const updateClasses = () => {
+    axios.get("/api/classes/getall").then((res) => {
+      setClasses(
+        res.data.map((c) => (
+          <tr key={c.id}>
+            <td>{c.name}</td>
+            <td>{c.number}</td>
+            <td>
+              {c.enrolled}/{c.capacity}
+            </td>
+          </tr>
+        ))
+      );
+    });
+  };
+
+  useEffect(() => {
+    if (user) {
+      updateClasses();
+    }
+  }, [userStatus, user]);
+
   const form = useForm({
     initialValues: {
       name: "",
@@ -15,7 +39,9 @@ export default function Admin() {
       capacity: 100,
     },
 
-    validate: {},
+    validate: {
+      capacity: (value) => (!/[0-9]/.test(value) ? "Must be a number" : null),
+    },
   });
 
   return (
@@ -31,12 +57,13 @@ export default function Admin() {
               <th>Enrolled/Capacity</th>
             </tr>
           </thead>
-          <tbody>{user && user.lms.classes ? user.lms.classes : <> </>}</tbody>
+          <tbody>{classes ? classes : <> </>}</tbody>
         </Table>
         <form
-          onSubmit={form.onSubmit((values) =>
-            axios.post("/api/classes/add", values)
-          )}
+          onSubmit={form.onSubmit(async (values) => {
+            await axios.post("/api/classes/add", values);
+            updateClasses();
+          })}
         >
           <Group>
             <Title order={3}>Add Class</Title>
