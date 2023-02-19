@@ -136,7 +136,7 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
     create: {
       number: req.body.number.toString(),
       name: req.body.name.toString(),
-      enrolled: req.body.enrolled,
+      enrolled: req.body.enrolled || 0,
       capacity: req.body.capacity,
     },
   });
