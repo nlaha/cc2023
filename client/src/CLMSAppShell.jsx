@@ -42,7 +42,7 @@ export default function CLMSAppShell(props) {
           hidden={!opened}
           width={{ sm: 200, lg: 300 }}
         >
-          {user && user.lms.classes && user.lms.classes.length() > 0 ? (
+          {user && user.lms.classes ? (
             <Stack align="stretch" spacing={10}>
               <Title order={3}>Classes</Title>
               {user.classes.map((c) => (

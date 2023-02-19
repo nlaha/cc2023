@@ -33,6 +33,8 @@ if (app.get("env") === "production") {
 
 app.use(express.static(path.join(__dirname, "client/build")));
 
+app.use(express.json());
+
 app.use(expressSession(session));
 
 const strategy = new Auth0Strategy(
@@ -127,12 +129,13 @@ app.get("/api/classes/get", secured, async (req, res, next) => {
 });
 
 app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
+  console.log(req.body);
   const new_class = await prisma.class.upsert({
-    where: { number: req.body.number }, //finds object in database that's equal to class number already passed
+    where: { number: req.body.number.toString() }, //finds object in database that's equal to class number already passed
     update: {},
     create: {
-      number: req.body.number,
-      name: req.body.name,
+      number: req.body.number.toString(),
+      name: req.body.name.toString(),
       enrolled: req.body.enrolled,
       capacity: req.body.capacity,
     },
