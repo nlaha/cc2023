@@ -123,7 +123,7 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
-//Updates an Assignment's Description | I don't know if this works to be entirely honest
+//Updates an Assignment's Description, Name, and Points that it's worth | I don't know if this works to be entirely honest
 app.post("/api/assignment/change"),
   school_admin_only,
   async (req, res) => {
