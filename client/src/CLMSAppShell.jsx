@@ -37,7 +37,7 @@ export default function CLMSAppShell(props) {
   const [activeClass, setActiveClass] = useState(searchParams.get("id"));
 
   useEffect(() => {
-    setActiveClass(searchParams.get("id"));
+    setActiveClass(Number(searchParams.get("id")));
   }, [searchParams]);
 
   useEffect(() => {
