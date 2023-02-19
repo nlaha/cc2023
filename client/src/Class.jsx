@@ -16,6 +16,7 @@ export default function Classes() {
   let [searchParams, setSearchParams] = useSearchParams();
   const [classInfo, setClassInfo] = useState({});
   const [students, setStudents] = useState([]);
+  const [isInstructor, setIsInstructor] = useState(false);
   const [loading, setLoading] = useState(true);
   let navigate = useNavigate();
 
@@ -48,6 +49,12 @@ export default function Classes() {
       .then((res) => {
         setClassInfo(res.data);
         setLoading(false);
+      });
+
+    axios
+      .post(`/api/classes/is_instructor`, { id: searchParams.get("id") })
+      .then((res) => {
+        setIsInstructor(res.data);
       });
   }, [searchParams]);
 
@@ -115,6 +122,19 @@ export default function Classes() {
               </thead>
               <tbody>{assignments}</tbody>
             </Table>
+            {}
+            <form
+              onSubmit={form.onSubmit((values) => {
+                axios.post("/api/classes/add", values).then((res) => {
+                  updateClasses(res.data);
+                });
+              })}
+            >
+              <Title order={3}>Add Assignments</Title>
+              <Group>
+                <Button type="submit">Add</Button>
+              </Group>
+            </form>
           </Stack>
         </Stack>
       )}

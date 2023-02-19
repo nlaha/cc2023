@@ -199,7 +199,7 @@ app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
 });
 
 // assumes user exists (this also probably doesnt work - needs to be tested)
-app.post("/api/classes/enroll", async (req, res) => {
+app.post("/api/classes/enroll", secured, async (req, res) => {
   var enrolling_user = await prisma.user.findFirst({
     where: { oauth_id: req.user.id },
   });
@@ -247,7 +247,7 @@ app.post("/api/classes/enroll", async (req, res) => {
 });
 
 // drops a user from a course
-app.post("/api/classes/drop", async (req, res) => {
+app.post("/api/classes/drop", secured, async (req, res) => {
   // get user
   const user = await prisma.user.findUnique({
     where: { oauth_id: req.user.id },
@@ -277,7 +277,7 @@ app.post("/api/classes/drop", async (req, res) => {
 });
 
 // gets the classes a user is enrolled in
-app.get("/api/enrolled_classes", async (req, res) => {
+app.get("/api/enrolled_classes", secured, async (req, res) => {
   const user_classes = await prisma.class.findMany({
     where: {
       students: {
@@ -293,7 +293,7 @@ app.get("/api/enrolled_classes", async (req, res) => {
 });
 
 // get classes w/ regex and search class number
-app.post("/api/classes/search", async (req, res) => {
+app.post("/api/classes/search", secured, async (req, res) => {
   const query = {
     name: { contains: query_string },
     NOT: {
@@ -323,12 +323,12 @@ app.post("/api/classes/search", async (req, res) => {
 });
 
 // gets a users grade for a given course
-app.post("/api/grades/get_course_grade", async (req, res) => {
+app.post("/api/grades/get_course_grade", secured, async (req, res) => {
   throw new Error("Not Implemented");
 });
 
 // gets all assignments for a certain class - potentially filtered by user too
-app.post("/api/assignments", async (req, res) => {
+app.post("/api/assignments", secured, async (req, res) => {
   throw new Error("Not Implemented");
 });
 
