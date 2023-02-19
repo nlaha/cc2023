@@ -123,23 +123,16 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
-// If either of the end points between lines 128 - 150 do not work, just comment all of it out
+// If either of the end points between lines 128 - 150 do not work, just comment all of it out 
 // Updates an Assignment's Description| I don't know if this works to be entirely honest
-app.post(
-  "/api/assignment/change_Description",
-  school_admin_only,
-  async (req, res) => {
+app.post("/api/assignment/change_Description",school_admin_only,async (req, res) => {
     //console.log(req.bod);
     console.log(req.bod);
     const new_description = await prisma.assignment.update({
-      update: {
-        name: req.body.name,
-        description: req.body.description,
-        pointsWorth: req.body.pointsWorth,
-      },
+      where: {id: req.body.id},
+      update: {description: req.body.description}
     });
-  }
-);
+  });
 
 //Get all classes
 app.post("/api/classes/getall", secured, async (req, res, next) => {
@@ -306,14 +299,15 @@ app.post("/api/classes/search", async (req, res) => {
   });
 });
 
-// currently doesn't check for duplicates - I'll fix later
-app.post("/api/assignments/add", async (req, res) => {
+// currently doesn't check for duplicates - I'll fix later 
+app.post("/api/assignments/add", async(req, res) => {
+
   const getCourse = await prisma.class.findFirst({
     where: {
       AND: [
-        { name: { contains: req.body.course_name } },
-        { number: { contains: req.body.course_number } },
-      ],
+        {name: {contains: req.body.course_name} },
+        {number: {contains: req.body.course_number} }
+      ]
     },
   });
 
@@ -321,11 +315,13 @@ app.post("/api/assignments/add", async (req, res) => {
     name: req.body.name,
     description: req.body.description,
     pointsWorth: req.body.points_worth,
-    classId: getCourse.id,
+    classId: getCourse.id
   });
-
+  
   res.json(createAssignment);
-});
+
+})
+
 
 // gets a users grade for a given assignment
 app.post("/api/grades/get_assignment_grade", async (req, res) => {
