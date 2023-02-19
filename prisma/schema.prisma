@@ -27,6 +27,14 @@ model Assignment{
   class Class @relation(fields: [classId], references: [id])
 }
 
+model Grade {
+  id Int @id default(autoincrement())
+  createdAt DateTime @default(now())
+  assigneeId Int
+  assignee User @relation(fields: [assigneeId], references: id)
+  courseId Int
+  course Class @relation(fields: [courseId], references: id)
+}
 
 model Class {
   id        Int      @id @default(autoincrement())
