@@ -71,6 +71,7 @@ passport.serializeUser(async (user, done) => {
       oauth_id: user.id,
       email: user.emails[0].value,
       name: user.displayName,
+      profile_pic: user.photos ? user.photos[0] : null,
       is_school_admin:
         false || user.emails[0].value === process.env.ADMIN_EMAIL,
     },
@@ -115,6 +116,7 @@ app.get("/user", secured, async (req, res, next) => {
 });
 
 app.get("/api/stats", secured, async (req, res, next) => {
+  const { _raw, _json, ...userProfile } = req.user;
   // get total enrolled classes
   const enrolledClasses = await prisma.usersInClasses.count({
     where: { userId: userProfile.lms.id },
