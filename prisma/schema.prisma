@@ -12,6 +12,7 @@ model User {
   oauth_id String @unique
   email String  @unique
   name  String?
+  is_school_admin Boolean @default(false)
   classes Class[]
 }
 

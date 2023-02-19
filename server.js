@@ -69,6 +69,8 @@ passport.serializeUser(async (user, done) => {
       oauth_id: user.id,
       email: user.emails[0].value,
       name: user.displayName,
+      is_school_admin:
+        false || user.emails[0].value === process.env.ADMIN_EMAIL,
     },
   });
   user.lms = lms_user;
@@ -97,19 +99,27 @@ const secured = (req, res, next) => {
   res.redirect("/login");
 };
 
+const school_admin_only = (req, res, next) => {
+  if (req.user && req.user.lms.is_school_admin) {
+    return next();
+  }
+  req.session.returnTo = req.originalUrl;
+  res.redirect("/login");
+};
+
 app.get("/user", secured, (req, res, next) => {
   const { _raw, _json, ...userProfile } = req.user;
   res.json(userProfile);
 });
 
-app.post("/api/classes/add", secured, async (req, res, next) => {
+app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
   const new_class = await prisma.class.upsert({
-    where:{number:req.body.number}, //finds object in database that's equal to class number already passed
-    update:{},
-    create:{
-      number:req.body.number,
-      name:req.body.name
-    }
+    where: { number: req.body.number }, //finds object in database that's equal to class number already passed
+    update: {},
+    create: {
+      number: req.body.number,
+      name: req.body.name,
+    },
   });
   res.status(200);
 });
