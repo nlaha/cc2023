@@ -123,6 +123,7 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     },
   });
 });
+// If either of the end points between lines 128 - 150 do not work, just comment all of it out 
 // Updates an Assignment's Description| I don't know if this works to be entirely honest
 app.post("/api/assignment/change_Description"),school_admin_only,async (req, res) => {
     //console.log(req.bod);
