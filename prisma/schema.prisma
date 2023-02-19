@@ -53,6 +53,8 @@ model Class {
   description String?
   students UsersInClasses[]
   assignment Assignment[]
+
+  @@fulltext([name, number])
 }
 
 model UsersInClasses {

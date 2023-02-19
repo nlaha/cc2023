@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
 # generated prisma files
 COPY prisma ./prisma/
+# COPY ENV variable
+COPY .env ./
 COPY . .
 RUN npm install --production --silent && mv node_modules ../
 RUN npx prisma generate
