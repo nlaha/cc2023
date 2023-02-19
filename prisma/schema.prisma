@@ -21,5 +21,7 @@ model Class {
   createdAt DateTime @default(now())
   name     String
   number String
+  enrolled Int
+  capacity Int
   students User[]
 }
