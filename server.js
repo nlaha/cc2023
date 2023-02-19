@@ -121,6 +121,7 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
     create:{
       name:req.body.name,
       pointsWorth:req.body.pointsWorth,
+      description:req.body.description,
     }
   });
   res.status(200);
