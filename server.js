@@ -127,10 +127,6 @@ app.post("/api/assignment/add", secured, async (req, res, next) => {
 // Updates an Assignment's Description| I don't know if this works to be entirely honest
 app.post("/api/assignment/change_Description"),school_admin_only,async (req, res) => {
     //console.log(req.bod);
-//Updates an Assignment's Description | I don't know if this works to be entirely honest
-app.post("/api/assignment/change"),
-  school_admin_only,
-  async (req, res) => {
     console.log(req.bod);
     const new_description = await prisma.assignment.update({
       update: {
