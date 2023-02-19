@@ -4,6 +4,8 @@ import { IconSearch } from "@tabler/icons";
 import { useForm } from "@mantine/form";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { Alert } from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons";
 
 export default function Enroll() {
   const form = useForm({
@@ -37,10 +39,16 @@ export default function Enroll() {
                 <Button
                   onClick={() => {
                     axios
-                      .post("/api/classes/enroll", { number: c.number })
+                      .post("/api/classes/enroll", {
+                        number: c.number,
+                        id: c.id,
+                      })
                       .then((res) => {
                         updateClasses();
                         window.location.reload(false);
+                      })
+                      .catch((err) => {
+                        console.log(err);
                       });
                   }}
                 >
