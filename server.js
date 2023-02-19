@@ -147,7 +147,19 @@ app.post("/api/classes/students", secured, async (req, res, next) => {
       },
     })
     .students();
-  res.json(students);
+
+  // get user info for each student
+  const student_info = await Promise.all(
+    students.map(async (student) => {
+      return await prisma.user.findUnique({
+        where: {
+          id: student.userId,
+        },
+      });
+    })
+  );
+
+  res.json(student_info);
 });
 
 //Post/Add a class
@@ -172,7 +184,19 @@ app.post("/api/classes/enroll", async (req, res) => {
   var enrolling_user = await prisma.user.findFirst({
     where: { oauth_id: req.user.id },
   });
-  let already_enrolled = false;
+
+  let already_enrolled = await prisma.class
+    .count({
+      where: {
+        number: req.body.number,
+      },
+    })
+    .students({
+      where: {
+        userId: enrolling_user.id,
+      },
+    });
+
   if (!already_enrolled) {
     // enroll the user in the class
     var enrolled_class = await prisma.class.update({
@@ -199,8 +223,23 @@ app.post("/api/classes/enroll", async (req, res) => {
 });
 
 // drops a user from a course
-app.delete("/api/classes/drop", async (req, res) => {
-  throw new Error("Not Implemented");
+app.post("/api/classes/drop", async (req, res) => {
+  // get user
+  const user = await prisma.user.findUnique({
+    where: { oauth_id: req.user.id },
+  });
+
+  await prisma.usersInClasses.delete({
+    where: {
+      userId_classId: {
+        userId: user.id,
+        classId: req.body.id,
+      },
+    },
+  });
+
+  console.log("Dropped user from class: " + req.body.id);
+  return res.status(200);
 });
 
 // gets the classes a user is enrolled in

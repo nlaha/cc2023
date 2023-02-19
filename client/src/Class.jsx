@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Stack, Table, Title } from "@mantine/core";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import {
+  Stack,
+  Table,
+  Title,
+  Anchor,
+  Text,
+  Group,
+  Button,
+} from "@mantine/core";
+import { openConfirmModal } from "@mantine/modals";
 import axios from "axios";
 
 export default function Classes() {
@@ -8,6 +17,28 @@ export default function Classes() {
   const [classInfo, setClassInfo] = useState({});
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  let navigate = useNavigate();
+
+  const openDropConfirmModal = () =>
+    openConfirmModal({
+      title: "Please confirm your request to drop this class",
+      children: (
+        <Text size="sm">
+          Dropping this class will remove you from the class roster and you will
+          no longer be able to access the class materials.
+        </Text>
+      ),
+      labels: { confirm: "Drop", cancel: "Cancel" },
+      confirmProps: { color: "red" },
+      onCancel: () => console.log("Drop"),
+      onConfirm: () => {
+        axios.post(`/api/classes/drop`, { id: classInfo.id }).then((res) => {
+          console.log(res);
+          // redirect to home /
+          navigate("/");
+        });
+      },
+    });
 
   useEffect(() => {
     axios
@@ -26,7 +57,9 @@ export default function Classes() {
           res.data.map((s) => (
             <tr key={s.id}>
               <td>{s.name}</td>
-              <td>{s.email}</td>
+              <td>
+                <Anchor href={`mailto:${s.email}`}>{s.email}</Anchor>
+              </td>
             </tr>
           ))
         );
@@ -39,7 +72,14 @@ export default function Classes() {
         <p>Loading...</p>
       ) : (
         <Stack>
-          <Title order={2}>Class Info</Title>
+          <Group>
+            <Title className="grow" order={2}>
+              Class Info
+            </Title>
+            <Button color="red" onClick={openDropConfirmModal}>
+              Drop
+            </Button>
+          </Group>
           <Stack>
             <Title order={3}>
               {classInfo.name} ({classInfo.number})

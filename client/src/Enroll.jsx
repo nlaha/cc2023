@@ -40,6 +40,7 @@ export default function Enroll() {
                       .post("/api/classes/enroll", { number: c.number })
                       .then((res) => {
                         updateClasses();
+                        window.location.reload(false);
                       });
                   }}
                 >
