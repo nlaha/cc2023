@@ -310,12 +310,24 @@ app.post("/api/assignments/add", async(req, res) => {
       ]
     },
   });
-
+  if(getCourse == undefined) {
+    throw new Error("Could not find a matching course");
+  }
   const createAssignment = await prisma.assignment.create({
     name: req.body.name,
     description: req.body.description,
     pointsWorth: req.body.points_worth,
-    classId: getCourse.id
+    data : {
+      class: {
+        create: {
+          class: {
+            connect: {
+              id: getCourse.id
+            },
+          },
+        }
+      } 
+    }
   });
   
   res.json(createAssignment);
