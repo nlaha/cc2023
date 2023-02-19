@@ -28,7 +28,7 @@ model Assignment{
 }
 
 model Grade {
-  id Int @id default(autoincrement())
+  id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   assigneeId Int
   assignee User @relation(fields: [assigneeId], references: id)
