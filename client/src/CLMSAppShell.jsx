@@ -8,6 +8,7 @@ import {
   Button,
   Text,
   MediaQuery,
+  ScrollArea,
   Burger,
   Title,
   useMantineTheme,
@@ -18,11 +19,35 @@ import {
 
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 export default function CLMSAppShell(props) {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
   const user = useSelector((state) => state.user.user);
+
+  const [classes, setClasses] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      axios.get("/api/enrolled_classes").then((res) => {
+        setClasses(
+          res.data.map((c) => (
+            <Link
+              key={c.id}
+              component={Link}
+              to={`/class?id=${c.id}`}
+              className="link"
+            >
+              <Button color="pink" variant="light">
+                {c.name} | {c.number}
+              </Button>
+            </Link>
+          ))
+        );
+      });
+    }
+  }, [user]);
 
   return (
     <AppShell
@@ -49,20 +74,13 @@ export default function CLMSAppShell(props) {
             </Link>
           </Stack>
           <Divider my="md" />
-          {user && user.lms.classes ? (
-            <Stack align="stretch" spacing={10}>
-              <Title order={3}>Classes</Title>
-              {user.classes.map((c) => (
-                <Link
-                  key={c.id}
-                  component={Link}
-                  to={`/class?id=${c.id}`}
-                  className="link"
-                >
-                  <Button>{c.name}</Button>
-                </Link>
-              ))}
-            </Stack>
+          {user && classes ? (
+            <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+              <Stack align="stretch" spacing={10}>
+                <Title order={3}>Classes</Title>
+                {classes}
+              </Stack>
+            </Navbar.Section>
           ) : (
             <></>
           )}

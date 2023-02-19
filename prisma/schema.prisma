@@ -14,7 +14,7 @@ model User {
   name  String?
   GPA   Float?
   is_school_admin Boolean @default(false)
-  classes Class[]
+  classes UsersInClasses[]
 }
 
 model Assignment{
@@ -35,6 +35,15 @@ model Class {
   number String @unique
   enrolled Int
   capacity Int
-  students User[]
+  students UsersInClasses[]
   assignment Assignment[]
+}
+
+model UsersInClasses {
+    user User @relation(fields: [userId], references: [id])
+    userId Int
+    class Class @relation(fields: [classId], references: [id])
+    classId Int
+    enrolledAt DateTime @default(now())
+    @@id([userId, classId])
 }

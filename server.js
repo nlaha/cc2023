@@ -86,7 +86,6 @@ passport.deserializeUser(async (user, done) => {
     },
   });
   user.lms = lms_user;
-  console.log(user.lms);
   done(null, user);
 });
 
@@ -160,15 +159,30 @@ app.post("/api/classes/enroll", async (req, res) => {
   var enrolling_user = await prisma.user.findFirst({
     where: { oauth_id: req.user.id },
   });
-  var enrolled_class = prisma.class.update({
-    where: { number: req.body.class_number },
-    data: {
-      students: {
-        connect: { id: enrolling_user.id },
+  let already_enrolled = false;
+  if (!already_enrolled) {
+    // enroll the user in the class
+    var enrolled_class = await prisma.class.update({
+      where: { number: req.body.number },
+      data: {
+        students: {
+          create: {
+            user: {
+              connect: {
+                id: enrolling_user.id,
+              },
+            },
+          },
+        },
       },
-    },
-  });
-  return res.json(enrolled_class);
+    });
+
+    console.log("Enrolled user in class: " + req.body.number);
+    return res.json(enrolled_class);
+  } else {
+    console.log("User already enrolled in class: " + req.body.number);
+    return res.status(400).json({ error: "User already enrolled in class" });
+  }
 });
 
 // drops a user from a course
@@ -177,10 +191,17 @@ app.delete("/api/classes/drop", async (req, res) => {
 });
 
 // gets the classes a user is enrolled in
-app.post("/api/enrolled_classes", async (req, res) => {
-  var user_id = parseInt(req.body.id);
+app.get("/api/enrolled_classes", async (req, res) => {
   const user_classes = await prisma.class.findMany({
-    where: { students: { some: { id: user_id } } },
+    where: {
+      students: {
+        some: {
+          user: {
+            oauth_id: req.user.id,
+          },
+        },
+      },
+    },
   });
   res.json(user_classes);
 });
