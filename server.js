@@ -379,20 +379,20 @@ app.get("/api/enrolled_classes", async (req, res) => {
 // get classes w/ regex and search class number
 app.post("/api/classes/search", async (req, res) => {
   var query_string = req.body.query_string.trim();
-  console.log("Searching for classes with query: " + query_string);
+  console.log("Searching for classes with query: " + `"${query_string}"`);
   const query = {
-    OR: [
-      {
-        name: {
-          contains: query_string,
+    name: {
+      search: query_string,
+    },
+    NOT: {
+      students: {
+        some: {
+          user: {
+            oauth_id: req.user.id,
+          },
         },
       },
-      {
-        number: {
-          contains: query_string,
-        },
-      },
-    ],
+    },
   };
 
   const total_matching_classes = await prisma.class.count({
