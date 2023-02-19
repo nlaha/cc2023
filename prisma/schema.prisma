@@ -21,12 +21,8 @@ model Assignment{
   name  String
   description String
   pointsWorth Int
-<<<<<<< HEAD
-  classes Class[]
-=======
   classId Int
   class Class @relation(fields: [classId], references: [id])
->>>>>>> f6737e912ed49bbcf466850557ee91371e7006eb
 }
 
 
