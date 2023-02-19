@@ -11,11 +11,12 @@ import { useColorScheme } from "@mantine/hooks";
 
 import Home from "./Home";
 import Grades from "./Grades";
-import Classes from "./Classes";
+import Class from "./Class";
 import CLMSAppShell from "./CLMSAppShell";
 
 import { useSelector, useDispatch } from "react-redux";
 import { fetchUser } from "./features/user/userSlice";
+import Admin from "./Admin";
 
 function App() {
   const theme = useMantineTheme();
@@ -55,8 +56,9 @@ function App() {
             >
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/classes" element={<Classes />} />
+                <Route path="/class" element={<Class />} />
                 <Route path="/grades" element={<Grades />} />
+                <Route path="/admin" element={<Admin />} />
               </Routes>
             </CLMSAppShell>
           </BrowserRouter>

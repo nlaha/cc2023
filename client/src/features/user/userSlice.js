@@ -20,7 +20,11 @@ export const userSlice = createSlice({
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload;
+        if (action.payload.lms) {
+          state.user = action.payload;
+        } else {
+          state.user = null;
+        }
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.status = "failed";

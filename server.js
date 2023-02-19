@@ -33,6 +33,8 @@ if (app.get("env") === "production") {
 
 app.use(express.static(path.join(__dirname, "client/build")));
 
+app.use(express.json());
+
 app.use(expressSession(session));
 
 const strategy = new Auth0Strategy(
@@ -69,6 +71,8 @@ passport.serializeUser(async (user, done) => {
       oauth_id: user.id,
       email: user.emails[0].value,
       name: user.displayName,
+      is_school_admin:
+        false || user.emails[0].value === process.env.ADMIN_EMAIL,
     },
   });
   user.lms = lms_user;
@@ -97,37 +101,75 @@ const secured = (req, res, next) => {
   res.redirect("/login");
 };
 
+const school_admin_only = (req, res, next) => {
+  if (req.user && req.user.lms.is_school_admin) {
+    return next();
+  }
+  req.session.returnTo = req.originalUrl;
+  res.redirect("/login");
+};
+
 app.get("/user", secured, (req, res, next) => {
   const { _raw, _json, ...userProfile } = req.user;
   res.json(userProfile);
 });
 
-app.post("/api/classes/add", secured, async (req, res, next) => {
-  const new_class = await prisma.class.upsert({
-    where:{number:req.body.number}, //finds object in database that's equal to class number already passed
-    update:{},
-    create:{
-      number:req.body.number,
-      name:req.body.name,
-      prefix:req.body.prefix,
-    }
-  });
-  res.status(200);
-});
-
 app.post("/api/assignment/add", secured, async (req, res, next) => {
   const new_assignment = await prisma.assignment.upsert({
-    update:{},
-    create:{
-      name:req.body.name,
-      pointsWorth:req.body.pointsWorth,
-      description:req.body.description,
-    }
+    update: {},
+    create: {
+      name: req.body.name,
+      pointsWorth: req.body.pointsWorth,
+      description: req.body.description,
+    },
   });
-  res.status(200);
+});
+
+app.get("/api/classes/getall", secured, async (req, res, next) => {
+  const classes = await prisma.class.findMany();
+  res.json(classes);
+});
+
+app.get("/api/classes/get", secured, async (req, res, next) => {
+  const classes = await prisma.class.findMany({
+    where: {
+      number: req.query.number,
+    },
+  });
+  res.json(classes);
+});
+
+app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
+  console.log(req.body);
+  const new_class = await prisma.class.upsert({
+    where: { number: req.body.number.toString() }, //finds object in database that's equal to class number already passed
+    update: {},
+    create: {
+      number: req.body.number.toString(),
+      name: req.body.name.toString(),
+      enrolled: Number(req.body.enrolled || 0),
+      capacity: Number(req.body.capacity),
+    },
+  });
+
+  res.json(new_class);
+});
+
+// gets the classes a user is enrolled in
+app.get("/api/enrolled_classes", async (req, res) => {
+  var user_id = parseInt(req.query.id);
+  const user_classes = await prisma.class.findMany({
+    where: { students: { some: { id: user_id } } },
+  });
+  res.json(user_classes);
 });
 
 app.set("trust proxy", 1);
+
+// handles react routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/client/build/index.html"));
+});
 
 app.listen(port, () => {
   /* eslint-disable no-console */

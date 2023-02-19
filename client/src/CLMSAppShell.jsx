@@ -5,16 +5,24 @@ import {
   Header,
   Footer,
   Aside,
+  Button,
   Text,
   MediaQuery,
   Burger,
   Title,
   useMantineTheme,
+  Stack,
+  NavLink,
 } from "@mantine/core";
+
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function CLMSAppShell(props) {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
+  const user = useSelector((state) => state.user.user);
+
   return (
     <AppShell
       styles={{
@@ -34,19 +42,38 @@ export default function CLMSAppShell(props) {
           hidden={!opened}
           width={{ sm: 200, lg: 300 }}
         >
-          <Text>Classes</Text>
+          {user && user.lms.classes ? (
+            <Stack align="stretch" spacing={10}>
+              <Title order={3}>Classes</Title>
+              {user.classes.map((c) => (
+                <Link
+                  key={c.id}
+                  component={Link}
+                  to={`/class?id=${c.id}`}
+                  className="link"
+                >
+                  <Button>{c.name}</Button>
+                </Link>
+              ))}
+            </Stack>
+          ) : (
+            <></>
+          )}
+
+          {user && user.lms.is_school_admin ? (
+            <Link to={`/admin`}>
+              <Button color="red" className="admin-button">
+                Admin
+              </Button>
+            </Link>
+          ) : (
+            <></>
+          )}
         </Navbar>
-      }
-      aside={
-        <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-          <Aside p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 300 }}>
-            <Text>Application sidebar</Text>
-          </Aside>
-        </MediaQuery>
       }
       footer={
         <Footer height={60} p="md">
-          Application footer
+          Crimson LMS - by Segfault - Crimson Code 2023
         </Footer>
       }
       header={
@@ -64,7 +91,9 @@ export default function CLMSAppShell(props) {
               />
             </MediaQuery>
 
-            <Title>Crimson LMS</Title>
+            <Link to="/" className="link site-title">
+              <Title>Crimson LMS</Title>
+            </Link>
           </div>
         </Header>
       }
