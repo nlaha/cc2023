@@ -117,6 +117,15 @@ app.get("/api/classes/getall", secured, async (req, res, next) => {
   res.json(classes);
 });
 
+app.get("/api/classes/get", secured, async (req, res, next) => {
+  const classes = await prisma.class.findMany({
+    where: {
+      number: req.query.number,
+    },
+  });
+  res.json(classes);
+});
+
 app.post("/api/classes/add", school_admin_only, async (req, res, next) => {
   const new_class = await prisma.class.upsert({
     where: { number: req.body.number }, //finds object in database that's equal to class number already passed
