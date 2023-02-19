@@ -57,6 +57,7 @@ model UsersInClasses {
     userId Int
     class Class @relation(fields: [classId], references: [id])
     classId Int
+    isInstructor Boolean @default(false)
     enrolledAt DateTime @default(now())
     @@id([userId, classId])
 }
