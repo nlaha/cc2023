@@ -76,12 +76,12 @@ export default function Admin() {
         <form
           onSubmit={form.onSubmit((values) => {
             axios.post("/api/classes/add", values).then((res) => {
-              updateClasses(res.json);
+              updateClasses(res.data);
             });
           })}
         >
+          <Title order={3}>Add Class</Title>
           <Group>
-            <Title order={3}>Add Class</Title>
             <Input placeholder="Name" {...form.getInputProps("name")} />
             <Input placeholder="Number" {...form.getInputProps("number")} />
             <Input placeholder="Capacity" {...form.getInputProps("capacity")} />

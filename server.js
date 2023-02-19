@@ -155,6 +155,11 @@ app.get("/api/enrolled_classes", async (req, res) => {
 
 app.set("trust proxy", 1);
 
+// handles react routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/client/build/index.html"));
+});
+
 app.listen(port, () => {
   /* eslint-disable no-console */
   console.log(`React app running on ${process.env.PUBLIC_URL}`);
