@@ -382,7 +382,7 @@ app.post("/api/classes/search", async (req, res) => {
   console.log("Searching for classes with query: " + `"${query_string}"`);
   const query = {
     name: {
-      search: query_string,
+      contains: query_string,
     },
     NOT: {
       students: {

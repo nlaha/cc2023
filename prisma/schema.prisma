@@ -1,11 +1,10 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:../db/db.db"
 }
 
 model User {
@@ -53,10 +52,6 @@ model Class {
   description String?
   students UsersInClasses[]
   assignment Assignment[]
-
-  @@fulltext([number])
-  @@fulltext([name])
-  @@fulltext([name, number])
 }
 
 model UsersInClasses {
