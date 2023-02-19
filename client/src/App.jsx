@@ -17,6 +17,7 @@ import CLMSAppShell from "./CLMSAppShell";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchUser } from "./features/user/userSlice";
 import Admin from "./Admin";
+import Enroll from "./Enroll";
 
 function App() {
   const theme = useMantineTheme();
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/class" element={<Class />} />
                 <Route path="/grades" element={<Grades />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/enroll" element={<Enroll />} />
               </Routes>
             </CLMSAppShell>
           </BrowserRouter>

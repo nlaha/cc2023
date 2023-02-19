@@ -4,10 +4,19 @@
 }
 
 .site-title {
-  font-family: "Knewave", cursive !important;
+  font-family: "Fredoka One", cursive;
+  color: white;
+  font-weight: 100;
+}
+
+.site-header {
+  background-color: #a60f2d;
 }
 
 .admin-button {
-  position: "absolute";
-  bottom: "1rem";
+}
+
+.admin-btn-container {
+  position: absolute;
+  bottom: 1rem;
 }

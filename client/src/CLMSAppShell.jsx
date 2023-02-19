@@ -13,6 +13,7 @@ import {
   useMantineTheme,
   Stack,
   NavLink,
+  Divider,
 } from "@mantine/core";
 
 import { Link } from "react-router-dom";
@@ -42,6 +43,12 @@ export default function CLMSAppShell(props) {
           hidden={!opened}
           width={{ sm: 200, lg: 300 }}
         >
+          <Stack align="stretch" spacing={10}>
+            <Link to={`/enroll`} className="link">
+              <Button color="yellow">Search & Enroll</Button>
+            </Link>
+          </Stack>
+          <Divider my="md" />
           {user && user.lms.classes ? (
             <Stack align="stretch" spacing={10}>
               <Title order={3}>Classes</Title>
@@ -61,11 +68,13 @@ export default function CLMSAppShell(props) {
           )}
 
           {user && user.lms.is_school_admin ? (
-            <Link to={`/admin`}>
-              <Button color="red" className="admin-button">
-                Admin
-              </Button>
-            </Link>
+            <Stack align="stretch" spacing={10} className="admin-btn-container">
+              <Link to={`/admin`}>
+                <Button color="red" className="admin-button">
+                  Admin
+                </Button>
+              </Link>
+            </Stack>
           ) : (
             <></>
           )}
@@ -77,7 +86,7 @@ export default function CLMSAppShell(props) {
         </Footer>
       }
       header={
-        <Header height={{ base: 50, md: 70 }} p="md">
+        <Header height={{ base: 50, md: 70 }} p="md" className="site-header">
           <div
             style={{ display: "flex", alignItems: "center", height: "100%" }}
           >
@@ -91,8 +100,8 @@ export default function CLMSAppShell(props) {
               />
             </MediaQuery>
 
-            <Link to="/" className="link site-title">
-              <Title>Crimson LMS</Title>
+            <Link to="/" className="link">
+              <Title className="site-title">Crimson LMS</Title>
             </Link>
           </div>
         </Header>
