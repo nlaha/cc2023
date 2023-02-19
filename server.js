@@ -171,6 +171,11 @@ app.post("/api/classes/enroll", async(req, res) => {
   return res.json(enrolled_class);
 });
 
+// drops a user from a course
+app.delete("/api/classes/drop", async(req, res) => {
+  throw new Error("Not Implemented");
+});
+
 // gets the classes a user is enrolled in
 app.post("/api/enrolled_classes", async (req, res) => {
   var user_id = parseInt(req.body.id);
@@ -198,11 +203,6 @@ app.post("/api/grades/get_course_grade", async(req, res) => {
 app.post("/api/assignments", async(req, res) => {
   throw new Error("Not Implemented");
 });
-
-
-
-
-
 
 
 
