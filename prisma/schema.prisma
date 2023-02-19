@@ -21,8 +21,10 @@ model Assignment{
   name  String
   description String
   pointsWorth Int
-  clsses Class[]
+  classId Int
+  class Class @relation(fields: [classId], references: [id])
 }
+
 
 model Class {
   id        Int      @id @default(autoincrement())
