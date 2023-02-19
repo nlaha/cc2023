@@ -141,6 +141,26 @@ app.post(
   }
 );
 
+app.post("/api/classes/is_instructor", secured, async (req, res, next) => {
+  var enrolling_user = await prisma.user.findFirst({
+    where: { oauth_id: req.user.id },
+  });
+  const classes = await prisma.usersInClasses.findUnique({
+    where: {
+      userId_classId: {
+        userId: enrolling_user.id,
+        classId: Number(req.body.id),
+      },
+    },
+  });
+
+  if (classes) {
+    res.json({ is_instructor: true });
+  } else {
+    res.json({ is_instructor: false });
+  }
+});
+
 //Get all classes
 app.post("/api/classes/getall", secured, async (req, res, next) => {
   const total = await prisma.class.count();
@@ -316,14 +336,14 @@ app.post("/api/assignments/add", async (req, res) => {
       ],
     },
   });
-  if(getCourse == undefined) {
+  if (getCourse == undefined) {
     throw new Error("Could not find a matching course");
   }
   const createAssignment = await prisma.assignment.create({
     name: req.body.name,
     description: req.body.description,
     pointsWorth: req.body.points_worth,
-    data : {
+    data: {
       class: {
         create: {
           class: {
@@ -331,9 +351,9 @@ app.post("/api/assignments/add", async (req, res) => {
               id: getCourse.id,
             },
           },
-        }
-      } 
-    }
+        },
+      },
+    },
   });
 
   res.json(createAssignment);
