@@ -15,6 +15,7 @@ model User {
   GPA   Float?
   is_school_admin Boolean @default(false)
   classes UsersInClasses[]
+  grades Grade[]
 }
 
 model Assignment{
@@ -25,16 +26,19 @@ model Assignment{
   pointsWorth Int
   classId Int
   class Class @relation(fields: [classId], references: [id])
+  grades Grade[]
 }
 
-// model Grade {
-//   id Int @id @default(autoincrement())
-//   createdAt DateTime @default(now())
-//   assigneeId Int
-//   assignee User @relation(fields: [assigneeId], references: id)
-//   courseId Int
-//   course Class @relation(fields: [courseId], references: id)
-// }
+ model Grade {
+   //id Int @id @default(autoincrement())
+   createdAt DateTime @default(now())
+   assigneeId Int
+   assignee User @relation(fields: [assigneeId], references: id)
+   assignmentId Int
+   grade Decimal
+   course Assignment @relation(fields: [assignmentId], references: id)
+   @@id([assigneeId, assignmentId])
+ }
 
 model Class {
   id        Int      @id @default(autoincrement())
@@ -55,3 +59,4 @@ model UsersInClasses {
     enrolledAt DateTime @default(now())
     @@id([userId, classId])
 }
+
