@@ -11,14 +11,12 @@ import {
   TextInput,
   Button,
   FileButton,
+  Textarea,
 } from "@mantine/core";
 import { openConfirmModal, openModal, closeAllModals } from "@mantine/modals";
 import axios from "axios";
 import { useForm } from "@mantine/form";
 import { DatePicker } from "@mantine/dates";
-import { RichTextEditor, Link } from "@mantine/tiptap";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 
 export default function Classes() {
   let [searchParams, setSearchParams] = useSearchParams();
@@ -50,39 +48,6 @@ export default function Classes() {
           navigate("/");
         });
       },
-    });
-
-  const openAddInstructorModal = () =>
-    openModal({
-      title: "Subscribe to newsletter",
-      children: (
-        <>
-          <TextInput
-            label="Instructor Email"
-            placeholder="foo.bar@example.edu"
-            data-autofocus
-            onChange={(e) => setInstructorEmail(e.target.value)}
-            value={instructorEmail}
-          />
-          <Button
-            fullWidth
-            onClick={() => {
-              axios
-                .post(`/api/classes/add_instructor`, {
-                  id: classInfo.id,
-                  email: instructorEmail,
-                })
-                .then((res) => {
-                  console.log(res);
-                  closeAllModals();
-                });
-            }}
-            mt="md"
-          >
-            Submit
-          </Button>
-        </>
-      ),
     });
 
   useEffect(() => {
@@ -125,6 +90,7 @@ export default function Classes() {
       due: "",
       points: 100,
       description: "",
+      classId: searchParams.get("id"),
     },
 
     validate: {
@@ -139,40 +105,39 @@ export default function Classes() {
     },
   });
 
-  const editor = useEditor({
-    extensions: [StarterKit, Link],
-    content: form.values.description,
-  });
+  useEffect(() => {
+    axios
+      .post("/api/assignments/get", {
+        classId: searchParams.get("id"),
+      })
+      .then((res) => {
+        setAssignments(
+          res.data.map((a) => (
+            <tr key={a.id}>
+              <td>{a.name}</td>
+              <td>{a.due}</td>
+              <td>
+                {a.points}/{a.points_total}
+              </td>
+              <td>{a.submitted ? "Yes" : "No"}</td>
+            </tr>
+          ))
+        );
+      });
+  }, [searchParams, classInfo]);
 
-  const updateAssignments = async (new_assignment) => {
-    if (!new_assignment) {
-      let res = await axios.post("/api/assignments/get");
-      await setAssignments(
-        res.data.results.map((a) => (
-          <tr key={a.id}>
-            <td>{a.name}</td>
-            <td>{a.due}</td>
-            <td>
-              {a.points}/{a.points_total}
-            </td>
-            <td>{a.submitted ? "Yes" : "No"}</td>
-          </tr>
-        ))
-      );
-    } else {
-      setAssignments(
-        assignments.map((a) => (
-          <tr key={a.id}>
-            <td>{a.name}</td>
-            <td>{a.due}</td>
-            <td>
-              {a.points}/{a.points_total}
-            </td>
-            <td>{a.submitted ? "Yes" : "No"}</td>
-          </tr>
-        ))
-      );
-    }
+  const updateAssignment = async (new_assignment) => {
+    await setAssignments([
+      ...assignments,
+      <tr key={new_assignment.id}>
+        <td>{new_assignment.name}</td>
+        <td>{new_assignment.due.toISOString().split("T")[0]}</td>
+        <td>
+          {new_assignment.points}/{new_assignment.points}
+        </td>
+        <td>{new_assignment.submitted ? "Yes" : "No"}</td>
+      </tr>,
+    ]);
   };
 
   return (
@@ -184,11 +149,36 @@ export default function Classes() {
           <Group>
             <Title className="grow" order={2}>
               Class Info{" "}
-              {isInstructor ? <span color="lime">(Instructor)</span> : null}
+              {isInstructor ? (
+                <span className="green">(Instructor)</span>
+              ) : null}
             </Title>
-            <Button color="grape" onClick={openAddInstructorModal}>
-              Add Instructor
-            </Button>
+            {isInstructor ? (
+              <>
+                <TextInput
+                  placeholder="foo.bar@example.edu"
+                  data-autofocus
+                  value={instructorEmail}
+                  onChange={(event) =>
+                    setInstructorEmail(event.currentTarget.value)
+                  }
+                />
+                <Button
+                  color="grape"
+                  onClick={async () => {
+                    let res = await axios.post(`/api/classes/add_instructor`, {
+                      id: classInfo.id,
+                      email: instructorEmail,
+                    });
+                    await setInstructorEmail("");
+                    // reload page
+                    window.location.reload(false);
+                  }}
+                >
+                  Add Instructor
+                </Button>
+              </>
+            ) : null}
             <Button color="red" onClick={openDropConfirmModal}>
               Drop
             </Button>
@@ -229,7 +219,8 @@ export default function Classes() {
               <form
                 onSubmit={form.onSubmit((values) => {
                   axios.post("/api/assignments/add", values).then((res) => {
-                    updateAssignments(res.data);
+                    updateAssignment(res.data);
+                    form.reset();
                   });
                 })}
               >
@@ -255,45 +246,13 @@ export default function Classes() {
                     />
                   </Group>
                   <Group>
-                    <RichTextEditor
-                      editor={editor}
+                    <Textarea
+                      placeholder="Description"
+                      label="Description"
+                      autosize
+                      withAsterisk
                       {...form.getInputProps("description")}
-                    >
-                      <RichTextEditor.Toolbar
-                        sticky
-                        stickyOffset={60}
-                        sx={{ width: "100%" }}
-                      >
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.Bold />
-                          <RichTextEditor.Italic />
-                          <RichTextEditor.Strikethrough />
-                          <RichTextEditor.ClearFormatting />
-                          <RichTextEditor.Code />
-                        </RichTextEditor.ControlsGroup>
-
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.H1 />
-                          <RichTextEditor.H2 />
-                          <RichTextEditor.H3 />
-                          <RichTextEditor.H4 />
-                        </RichTextEditor.ControlsGroup>
-
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.Blockquote />
-                          <RichTextEditor.Hr />
-                          <RichTextEditor.BulletList />
-                          <RichTextEditor.OrderedList />
-                        </RichTextEditor.ControlsGroup>
-
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.Link />
-                          <RichTextEditor.Unlink />
-                        </RichTextEditor.ControlsGroup>
-                      </RichTextEditor.Toolbar>
-
-                      <RichTextEditor.Content />
-                    </RichTextEditor>
+                    />
                   </Group>
                   <Group>
                     <FileButton

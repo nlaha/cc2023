@@ -127,16 +127,60 @@ app.get("/api/stats", secured, async (req, res, next) => {
   });
 });
 
+app.post("/api/assignments/get", secured, async (req, res, next) => {
+  // get assignments for class
+  let assignments = await prisma.assignment.findMany({
+    where: { classId: Number(req.body.classId) },
+  });
+
+  assignments = assignments.map((assignment) => {
+    return {
+      ...assignment,
+      due: assignment.dueDate.toISOString().split("T")[0],
+      points: assignment.pointsWorth,
+      points_total: assignment.pointsWorth,
+      submitted: false,
+    };
+  });
+  res.json(assignments);
+});
+
 //Post/Add Assignment
-app.post("/api/assignment/add", secured, async (req, res, next) => {
-  const new_assignment = await prisma.assignment.upsert({
-    update: {},
-    create: {
-      name: req.body.name,
-      pointsWorth: req.body.pointsWorth,
-      description: req.body.description,
+app.post("/api/assignments/add", secured, async (req, res, next) => {
+  var enrolling_user = await prisma.user.findFirst({
+    where: { oauth_id: req.user.id },
+  });
+
+  // make sure user is instructor in class
+  const userInClass = await prisma.usersInClasses.count({
+    where: {
+      userId: enrolling_user.id,
+      classId: Number(req.body.classId),
+      isInstructor: true,
     },
   });
+
+  if (userInClass === 0) {
+    return res.status(401).json({
+      error: "User is not an instructor in this class",
+    });
+  }
+
+  const new_assignment = await prisma.assignment.create({
+    data: {
+      name: req.body.name,
+      pointsWorth: req.body.points,
+      description: req.body.description,
+      dueDate: req.body.due,
+      class: {
+        connect: {
+          id: Number(req.body.classId),
+        },
+      },
+    },
+  });
+
+  res.json(new_assignment);
 });
 // If either of the end points between lines 128 - 135 do not work, just comment all of it out
 // Updates an Assignment's Description| I don't know if this works to be entirely honest
@@ -334,20 +378,23 @@ app.get("/api/enrolled_classes", async (req, res) => {
 
 // get classes w/ regex and search class number
 app.post("/api/classes/search", async (req, res) => {
+  var query_string = req.body.query_string.trim();
+  console.log("Searching for classes with query: " + query_string);
   const query = {
-    name: { contains: query_string },
-    NOT: {
-      students: {
-        some: {
-          user: {
-            oauth_id: req.user.id,
-          },
+    OR: [
+      {
+        name: {
+          contains: query_string,
         },
       },
-    },
+      {
+        number: {
+          contains: query_string,
+        },
+      },
+    ],
   };
 
-  var query_string = req.body.query_string;
   const total_matching_classes = await prisma.class.count({
     where: query,
   });
@@ -356,44 +403,45 @@ app.post("/api/classes/search", async (req, res) => {
     take: req.body.take || 10,
     where: query,
   });
+  console.log("Found " + matching_classes.length + " classes");
   res.json({
     results: matching_classes,
     num_pages: Math.ceil(total_matching_classes / (req.body.take || 10)),
   });
 });
 
-// currently doesn't check for duplicates - I'll fix later
-app.post("/api/assignments/add", async (req, res) => {
-  const getCourse = await prisma.class.findFirst({
-    where: {
-      AND: [
-        { name: { contains: req.body.course_name } },
-        { number: { contains: req.body.course_number } },
-      ],
-    },
-  });
-  if (getCourse == undefined) {
-    throw new Error("Could not find a matching course");
-  }
-  const createAssignment = await prisma.assignment.create({
-    name: req.body.name,
-    description: req.body.description,
-    pointsWorth: req.body.points_worth,
-    data: {
-      class: {
-        create: {
-          class: {
-            connect: {
-              id: getCourse.id,
-            },
-          },
-        },
-      },
-    },
-  });
+// // currently doesn't check for duplicates - I'll fix later
+// app.post("/api/assignments/add", async (req, res) => {
+//   const getCourse = await prisma.class.findFirst({
+//     where: {
+//       AND: [
+//         { name: { contains: req.body.course_name } },
+//         { number: { contains: req.body.course_number } },
+//       ],
+//     },
+//   });
+//   if (getCourse == undefined) {
+//     throw new Error("Could not find a matching course");
+//   }
+//   const createAssignment = await prisma.assignment.create({
+//     name: req.body.name,
+//     description: req.body.description,
+//     pointsWorth: req.body.points_worth,
+//     data: {
+//       class: {
+//         create: {
+//           class: {
+//             connect: {
+//               id: getCourse.id,
+//             },
+//           },
+//         },
+//       },
+//     },
+//   });
 
-  res.json(createAssignment);
-});
+//   res.json(createAssignment);
+// });
 
 // gets a users grade for a given assignment
 app.post("/api/grades/get_assignment_grade", async (req, res) => {

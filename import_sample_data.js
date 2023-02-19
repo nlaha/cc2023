@@ -37,9 +37,9 @@ fs.createReadStream("class_prefixes.csv")
             prisma.class
               .create({
                 data: {
-                  name: course_name,
-                  number: row + " " + course_number,
-                  description: description,
+                  name: course_name.trim(),
+                  number: row + " " + course_number.trim(),
+                  description: description.trim(),
                   enrolled: 0,
                   capacity: 100,
                 },
