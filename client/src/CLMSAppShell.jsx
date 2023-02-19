@@ -34,6 +34,7 @@ export default function CLMSAppShell(props) {
 
   let [searchParams, setSearchParams] = useSearchParams();
   const [classes, setClasses] = useState([]);
+  const [classInfo, setClassInfo] = useState([]);
   const [activeClass, setActiveClass] = useState(searchParams.get("id"));
 
   useEffect(() => {
@@ -43,27 +44,33 @@ export default function CLMSAppShell(props) {
   useEffect(() => {
     if (user) {
       axios.get("/api/enrolled_classes").then((res) => {
-        setClasses(
-          res.data.map((c) => (
-            <Link
-              className="link full-width"
-              key={c.id}
-              component={Link}
-              to={`/class?id=${c.id}`}
-            >
-              <NavLink
-                key={c.id}
-                active={c.id === activeClass}
-                label={c.name}
-                description={c.number}
-                onClick={() => setActiveClass(c.id)}
-              />
-            </Link>
-          ))
-        );
+        setClassInfo(res.data);
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    setClasses(
+      classInfo.map((c) => (
+        <Link
+          className="link full-width"
+          key={c.id}
+          component={Link}
+          to={`/class?id=${c.id}`}
+        >
+          <NavLink
+            key={c.id}
+            active={c.id === activeClass}
+            label={c.name}
+            description={c.number}
+            onClick={() => {
+              setActiveClass(c.id);
+            }}
+          />
+        </Link>
+      ))
+    );
+  }, [classInfo, activeClass]);
 
   return (
     <AppShell
@@ -86,7 +93,9 @@ export default function CLMSAppShell(props) {
         >
           <Stack align="stretch" spacing={10}>
             <Link className="full-width link" to={`/enroll`}>
-              <Button color="yellow">Search & Enroll</Button>
+              <Button color="white" variant="light">
+                Search & Enroll
+              </Button>
             </Link>
           </Stack>
           <Divider my="md" />

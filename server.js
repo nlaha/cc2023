@@ -151,26 +151,6 @@ app.post(
   }
 );
 
-app.post("/api/classes/is_instructor", secured, async (req, res, next) => {
-  var enrolling_user = await prisma.user.findFirst({
-    where: { oauth_id: req.user.id },
-  });
-  const classes = await prisma.usersInClasses.findUnique({
-    where: {
-      userId_classId: {
-        userId: enrolling_user.id,
-        classId: Number(req.body.id),
-      },
-    },
-  });
-
-  if (classes) {
-    res.json({ is_instructor: true });
-  } else {
-    res.json({ is_instructor: false });
-  }
-});
-
 //Get all classes
 app.post("/api/classes/getall", secured, async (req, res, next) => {
   const total = await prisma.class.count();
@@ -288,6 +268,29 @@ app.post("/api/classes/is_instructor", secured, async (req, res, next) => {
     res.json({ is_instructor: false });
   }
 });
+
+app.post(
+  "/api/classes/add_instructor",
+  school_admin_only,
+  async (req, res, next) => {
+    var enrolling_user = await prisma.user.findFirst({
+      where: { email: req.user.email },
+    });
+    const classes = await prisma.usersInClasses.update({
+      where: {
+        userId_classId: {
+          userId: enrolling_user.id,
+          classId: Number(req.body.id),
+        },
+      },
+      data: {
+        isInstructor: true,
+      },
+    });
+
+    res.status(200);
+  }
+);
 
 // drops a user from a course
 app.post("/api/classes/drop", async (req, res) => {

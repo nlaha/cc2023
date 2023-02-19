@@ -4,9 +4,10 @@ import {
   Stack,
   Title,
   Group,
-  Input,
+  TextInput,
   Button,
   Pagination,
+  NumberInput,
 } from "@mantine/core";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "@mantine/form";
@@ -99,9 +100,24 @@ export default function Admin() {
         >
           <Title order={3}>Add Class</Title>
           <Group>
-            <Input placeholder="Name" {...form.getInputProps("name")} />
-            <Input placeholder="Number" {...form.getInputProps("number")} />
-            <Input placeholder="Capacity" {...form.getInputProps("capacity")} />
+            <TextInput
+              label="Name"
+              placeholder="Name"
+              withAsterisk
+              {...form.getInputProps("name")}
+            />
+            <TextInput
+              label="Number"
+              placeholder="Number"
+              withAsterisk
+              {...form.getInputProps("number")}
+            />
+            <NumberInput
+              label="Capacity"
+              placeholder="Capacity"
+              withAsterisk
+              {...form.getInputProps("capacity")}
+            />
             <Button type="submit">Add</Button>
           </Group>
         </form>
