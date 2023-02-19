@@ -185,17 +185,12 @@ app.post("/api/classes/enroll", async (req, res) => {
     where: { oauth_id: req.user.id },
   });
 
-  let already_enrolled = await prisma.class
-    .count({
-      where: {
-        number: req.body.number,
-      },
-    })
-    .students({
-      where: {
-        userId: enrolling_user.id,
-      },
-    });
+  let already_enrolled = await prisma.usersInClasses.count({
+    where: {
+      userId: enrolling_user.id,
+      classId: Number(req.body.id),
+    },
+  });
 
   if (!already_enrolled) {
     // enroll the user in the class
@@ -262,7 +257,18 @@ app.get("/api/enrolled_classes", async (req, res) => {
 app.post("/api/classes/search", async (req, res) => {
   var query_string = req.body.query_string;
   const matching_classes = await prisma.class.findMany({
-    where: { name: { contains: query_string } },
+    where: {
+      name: { contains: query_string },
+      NOT: {
+        students: {
+          some: {
+            user: {
+              oauth_id: req.user.id,
+            },
+          },
+        },
+      },
+    },
   });
   res.json(matching_classes);
 });
