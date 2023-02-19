@@ -56,6 +56,7 @@ export default function CLMSAppShell(props) {
                 active={c.id === activeClass}
                 label={c.name}
                 description={c.number}
+                onClick={() => setActiveClass(c.id)}
               />
             </Link>
           ))

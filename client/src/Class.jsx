@@ -19,6 +19,8 @@ export default function Classes() {
   const [loading, setLoading] = useState(true);
   let navigate = useNavigate();
 
+  const [assignments, setAssignments] = useState([]);
+
   const openDropConfirmModal = () =>
     openConfirmModal({
       title: "Please confirm your request to drop this class",
@@ -98,6 +100,20 @@ export default function Classes() {
                 </tr>
               </thead>
               <tbody>{students}</tbody>
+            </Table>
+          </Stack>
+          <Stack>
+            <Title order={2}>Assignments</Title>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Due</th>
+                  <th>Points</th>
+                  <th>Submitted?</th>
+                </tr>
+              </thead>
+              <tbody>{assignments}</tbody>
             </Table>
           </Stack>
         </Stack>
