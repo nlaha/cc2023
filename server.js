@@ -186,13 +186,15 @@ app.post("/api/classes/students", secured, async (req, res, next) => {
     .students();
 
   // get user info for each student
-  const student_info = await students.map(async (student) => {
-    return await prisma.user.findUnique({
-      where: {
-        id: student.userId,
-      },
-    });
-  });
+  const student_info = await Promise.all(
+    students.map(async (student) => {
+      return await prisma.user.findUnique({
+        where: {
+          id: student.userId,
+        },
+      });
+    })
+  );
 
   res.json(student_info);
 });
